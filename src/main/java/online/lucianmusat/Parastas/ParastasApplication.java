@@ -30,7 +30,6 @@ public class ParastasApplication {
 
 	@EventListener(ApplicationReadyEvent.class)
 	public void doSomethingAfterStartup() {
-		System.out.println("Hello World!");
 		DefaultDockerClientConfig config
 				= DefaultDockerClientConfig.createDefaultConfigBuilder().build();
 		DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
@@ -38,16 +37,14 @@ public class ParastasApplication {
 				.sslConfig(config.getSSLConfig())
 				.build();
 
-		DockerHttpClient.Request request = DockerHttpClient.Request.builder()
-				.method(DockerHttpClient.Request.Method.GET)
-				.path("/_ping")
-				.build();
+		DockerClient dockerClient = DockerClientBuilder.getInstance(config)
+		.withDockerHttpClient(httpClient).build();
 
-		try (DockerHttpClient.Response response = httpClient.execute(request)) {
-			assertThat(response.getStatusCode(), equalTo(200));
-			assertThat(IOUtils.toString(response.getBody()), equalTo("OK"));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		List<Container> containers = dockerClient.listContainersCmd().withStatusFilter(List.of("running")).exec();
+
+		for (Container container : containers) {
+			System.out.println("Container ID: " + container.getId());
+			System.out.println("Container Name: " + container.getNames()[0]);
 		}
 	}
 
