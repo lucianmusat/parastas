@@ -7,13 +7,18 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
+import org.apache.commons.io.IOUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 
 @SpringBootApplication
@@ -32,9 +37,18 @@ public class ParastasApplication {
 				.dockerHost(config.getDockerHost())
 				.sslConfig(config.getSSLConfig())
 				.build();
-		DockerClient dockerClient = DockerClientImpl.getInstance(config, httpClient);
-		List<Container> containers = dockerClient.listContainersCmd().exec();
-		System.out.println(containers.size());
+
+		DockerHttpClient.Request request = DockerHttpClient.Request.builder()
+				.method(DockerHttpClient.Request.Method.GET)
+				.path("/_ping")
+				.build();
+
+		try (DockerHttpClient.Response response = httpClient.execute(request)) {
+			assertThat(response.getStatusCode(), equalTo(200));
+			assertThat(IOUtils.toString(response.getBody()), equalTo("OK"));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }
