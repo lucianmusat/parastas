@@ -1,10 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>List of Docker Containers</title>
+    <title>Parastas</title>
 </head>
 <body>
     <h1>List of Docker Containers:</h1>
-    <pre th:text="${containerOutput}"></pre>
+    <table>
+        <tr th:each="container: ${containers}">
+            <th><input type="checkbox" th:id="${container.id}" onclick="handleClick(this);" th:checked="${selectedContainers.get(container.id)}"></th>
+            <th th:text="${container.name}" />
+            <th th:text="${container.id}" />
+        </tr>
+    </table>
+    <script>
+        function handleClick(cb) {
+            window.location.href = "/container/" + cb.id;
+        }
+    </script>
 </body>
 </html>

@@ -2,48 +2,41 @@ package online.lucianmusat.Parastas.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.ui.Model;
 
 import com.github.dockerjava.api.DockerClient;
 
-// import jakarta.annotation.PostConstruct;
+import online.lucianmusat.Parastas.utils.DockerContainer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
 import java.util.List;
+import java.util.ArrayList;
 
 @Component
 public class DockerService {
     
     private static final Logger logger = LogManager.getLogger(DockerService.class);
-    private DockerClient dockerClient;
+    private static DockerClient dockerClient;
 
     @Autowired
     DockerService(DockerClient dockerClient) {
-        this.dockerClient = dockerClient;
+        DockerService.dockerClient = dockerClient;
     }
 
-    public void ListAllDockerContainers(Model model) {
-        StringBuilder outputBuilder = new StringBuilder();
+    public List<DockerContainer> ListAllDockerContainers() {
+        logger.debug("Listing all containers");
+        List<DockerContainer> containers = new ArrayList<>();
         try {
             dockerClient.listContainersCmd().withStatusFilter(List.of("running")).exec().forEach(container -> {
-                outputBuilder.append("Container ID: ").append(container.getId()).append("\n");
-                outputBuilder.append("Container Name: ").append(container.getNames()[0]).append("\n");
+                containers.add(new DockerContainer(container.getId(), container.getImage()));
             });
-            
-            String containerOutput = outputBuilder.toString();
-            model.addAttribute("containerOutput", containerOutput);
-            logger.info("Container output: " + containerOutput);
         } catch (Exception e) {
             logger.error("Error while listing containers: " + e.getMessage());
         }
+        logger.debug("Found " + containers.size() + " containers");
+        return containers;
     }
-
-    // @PostConstruct
-    // public void initialize() {
-    //     ListAllDockerContainers();
-    // }
 
 }
