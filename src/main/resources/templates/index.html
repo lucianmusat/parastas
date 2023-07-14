@@ -9,7 +9,7 @@
         <tr th:each="container: ${containers}">
             <th><input type="checkbox" th:id="${container.id}" onclick="handleClick(this);" th:checked="${selectedContainers.get(container.id)}"></th>
             <th th:text="${container.name}" />
-            <th th:text="${container.id}" />
+            <th th:text="${container.shortID}" />
         </tr>
     </table>
     <script>

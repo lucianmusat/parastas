@@ -1,7 +1,7 @@
 package online.lucianmusat.Parastas.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.github.dockerjava.api.DockerClient;
 
@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.List;
 import java.util.ArrayList;
 
-@Component
+@Service
 public class DockerService {
     
     private static final Logger logger = LogManager.getLogger(DockerService.class);
@@ -37,6 +37,16 @@ public class DockerService {
         }
         logger.debug("Found " + containers.size() + " containers");
         return containers;
+    }
+
+    public Boolean isRunning(String containerId) {
+        logger.debug("Checking if container " + containerId + " is running");
+        try {
+            return dockerClient.inspectContainerCmd(containerId).exec().getState().getRunning();
+        } catch (Exception e) {
+            logger.error("Error while checking if container " + containerId + " is running: " + e.getMessage());
+            return false;
+        }
     }
 
 }
