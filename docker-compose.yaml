@@ -1,6 +1,10 @@
 version: '3.9'
 services:
   parastas:
+    environment:
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - RECIPIENT_EMAIL=${RECIPIENT_EMAIL}
     build:
       context: .
       dockerfile: Dockerfile

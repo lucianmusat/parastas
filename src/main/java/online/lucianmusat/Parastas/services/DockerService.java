@@ -49,4 +49,14 @@ public class DockerService {
         }
     }
 
+    public String getContainerName(String containerId) {
+        logger.debug("Getting container name for container " + containerId);
+        try {
+            return dockerClient.inspectContainerCmd(containerId).exec().getName().substring(1);
+        } catch (Exception e) {
+            logger.error("Error while getting container name for container " + containerId + ": " + e.getMessage());
+            return "";
+        }
+    }
+
 }
