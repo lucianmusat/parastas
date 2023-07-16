@@ -12,7 +12,7 @@ public class SmtpSettings {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String smtpHost;
-    private int smtpPort;
+    private int smtpPort = 587;
     private String smtpUsername;
     private String smtpPassword;
     private String recipients;

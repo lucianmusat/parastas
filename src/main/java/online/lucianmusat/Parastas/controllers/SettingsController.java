@@ -12,6 +12,8 @@ import org.apache.logging.log4j.Logger;
 
 import online.lucianmusat.Parastas.entities.SmtpSettings;
 import online.lucianmusat.Parastas.entities.SmtpSettingsRepository;
+import online.lucianmusat.Parastas.entities.StateSettingsRepository;
+import online.lucianmusat.Parastas.entities.StateSettings;
 import online.lucianmusat.Parastas.utils.SettingsForm;
 
 import jakarta.validation.Valid;
@@ -22,17 +24,17 @@ public class SettingsController {
 
     private static final Logger logger = LogManager.getLogger(MainController.class);
 
-    private final SmtpSettingsRepository smtpSettingsRepository;
-
     @Autowired
-    public SettingsController(SmtpSettingsRepository smtpSettingsRepository) {
-        this.smtpSettingsRepository = smtpSettingsRepository;
-    }
+    private SmtpSettingsRepository smtpSettingsRepository;
+    @Autowired
+    private StateSettingsRepository stateSettingsRepository;
 
     @RequestMapping("/settings")
     public String settingsPage(Model model) {
         SmtpSettings smtpSettings = smtpSettingsRepository.findById(1L).orElse(new SmtpSettings());
+        StateSettings stateSettings = stateSettingsRepository.findById(1L).orElse(new StateSettings());
         model.addAttribute("smtpSettings", smtpSettings);
+        model.addAttribute("stateSettings", stateSettings);
         return "settings";
     }
 
@@ -42,7 +44,6 @@ public class SettingsController {
             logger.error("Could not save settings: " + bindingResult.toString());
             return "redirect:/settings";
         }
-        logger.info("Refresh Period: " + settingsForm.getRefreshPeriod());
 
         SmtpSettings smtpSettings = smtpSettingsRepository.findById(1L).orElse(new SmtpSettings());
         if (!settingsForm.getSmtpHost().isEmpty()) {
@@ -66,7 +67,14 @@ public class SettingsController {
             smtpSettings.setRecipients(settingsForm.getRecipientEmailList().trim());
         }
 
+        StateSettings stateSettings = stateSettingsRepository.findById(1L).orElse(new StateSettings());
+        if (!settingsForm.getRefreshPeriod().isEmpty()) {
+            logger.info("Saving Refresh Period: " + settingsForm.getRefreshPeriod());
+            stateSettings.setRefreshPeriodSeconds(Integer.parseInt(settingsForm.getRefreshPeriod().trim()));
+        }
+
         smtpSettingsRepository.save(smtpSettings);
+        stateSettingsRepository.save(stateSettings);
 
         return "redirect:/settings";
     }

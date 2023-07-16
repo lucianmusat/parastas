@@ -31,6 +31,6 @@ be of any use for anyone else.
 
  - [X] Run in Docker container
  - [X] Add email notifications functionality.
- - [ ] Add settings page where you can configure your email and check frequency.
+ - [X] Add settings page where you can configure your email and check frequency.
  - [ ] Use something like bootsrap to make the UI nicer.
  - [ ] Add status icons for containers in the UI.

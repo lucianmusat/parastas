@@ -8,9 +8,11 @@ import org.springframework.ui.Model;
 
 import online.lucianmusat.Parastas.entities.SmtpSettings;
 import online.lucianmusat.Parastas.entities.SmtpSettingsRepository;
+import online.lucianmusat.Parastas.entities.StateSettingsRepository;
 import online.lucianmusat.Parastas.services.DockerService;
 import online.lucianmusat.Parastas.services.EmailService;
 import online.lucianmusat.Parastas.utils.DockerContainer;
+import online.lucianmusat.Parastas.entities.StateSettings;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,9 +36,10 @@ public class MainController {
     private final DockerService dockerService;
     private Map<String, Boolean> watchedContainers = new HashMap<>();
     private final List<String> downContainers = new ArrayList<>();
-    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-    private static int WATCH_TIME_S = 1;
+    private ScheduledExecutorService executor;
 
+    @Autowired
+    private StateSettingsRepository stateSettingsRepository;
     @Autowired
     private SmtpSettingsRepository smtpSettingsRepository;
 
@@ -57,7 +60,12 @@ public class MainController {
             }
         });
         
-        executor.scheduleAtFixedRate(watchContainers, 0, WATCH_TIME_S, TimeUnit.SECONDS);
+        StateSettings stateSettings = stateSettingsRepository.findById(1L).orElse(new StateSettings());
+        if (executor != null) {
+            executor.shutdownNow();
+        }
+        executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(watchContainers, 0, stateSettings.getRefreshPeriodSeconds(), TimeUnit.SECONDS);
 
         model.addAttribute("selectedContainers", watchedContainers);
         return "index";
@@ -74,7 +82,7 @@ public class MainController {
         public void run() {
             watchedContainers.forEach((id, selected) -> {
                 if (selected) {
-                    logger.debug("Checking container: " + id);
+                    logger.debug("Checking container: " + id.substring(0, 12));
                     if (!dockerService.isRunning(id) && !downContainers.contains(id)) {
                         downContainers.add(id);
                         logger.warn("Container: " + id + " is down!");

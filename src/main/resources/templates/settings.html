@@ -29,11 +29,13 @@
         </div>
         <div>
             <label for="refreshPeriod">Refresh Period (s):</label>
-            <input type="number" id="refreshPeriod" name="refreshPeriod" value="1">
+            <input type="number" id="refreshPeriod" name="refreshPeriod" th:value="${stateSettings.refreshPeriodSeconds}" th:placeholder="'1'">
         </div>
         <div>
             <button type="submit">Save</button>
         </div>
     </form>
+    <br />
+    <a href="/">Back to main page</a>
 </body>
 </html>
