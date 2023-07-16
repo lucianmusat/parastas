@@ -2,12 +2,14 @@ package online.lucianmusat.Parastas.configuration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.context.annotation.Scope;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
@@ -15,19 +17,18 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 
+import online.lucianmusat.Parastas.entities.SmtpSettings;
+import online.lucianmusat.Parastas.entities.SmtpSettingsRepository;
+
 import java.util.Properties;
+
+import com.google.common.base.Strings;
 
 
 @Configuration
-@EnableAsync
+@EnableAsync // for @Async annotation
 public class ParastasConfiguration {
     
-    @Value("${SMTP_USERNAME:}")
-    private String email;
-
-    @Value("${SMTP_PASSWORD:}")
-    private String password;
-
     private static final Logger logger = LogManager.getLogger(ParastasConfiguration.class);
 
     @Bean
@@ -45,22 +46,40 @@ public class ParastasConfiguration {
     }
 
     @Bean
-    public JavaMailSender javaMailSender() {
-        if (email.isEmpty() || password.isEmpty()) {
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE) // Recreate bean for each request because settings might change in the meantime
+    public JavaMailSender javaMailSender(SmtpSettingsRepository smtpSettingsRepository) {
+        SmtpSettings smtpSettings = smtpSettingsRepository.findById(1L).orElseGet(SmtpSettings::new);
+
+        String email = smtpSettings.getSmtpUsername();
+        String password = smtpSettings.getSmtpPassword();
+        String host = smtpSettings.getSmtpHost();
+        int port = smtpSettings.getSmtpPort();
+
+        if (Strings.isNullOrEmpty(email) || Strings.isNullOrEmpty(password)) {
             logger.error("Email or password not set!");
-            return null;
+            email = "";
+            password = "";
         }
+
+        if (Strings.isNullOrEmpty(host) || port == 0) {
+            logger.error("Host or port not set!");
+            host = "";
+            port = 0;
+        }
+
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.gmail.com");
-        mailSender.setPort(587);
+        mailSender.setHost(host);
+        mailSender.setPort(port);
         mailSender.setUsername(email);
         mailSender.setPassword(password);
+
         Properties properties = new Properties();
         properties.put("mail.transport.protocol", "smtp");
         properties.put("mail.smtp.auth", true);
         properties.put("mail.smtp.starttls.enable", true);
         properties.put("mail.smtp.ssl.trust", "*");
         properties.put("mail.debug", "false");
+
         mailSender.setJavaMailProperties(properties);
         return mailSender;
     }

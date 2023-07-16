@@ -11,10 +11,6 @@ RUN apt-get install -y openjdk-17-jdk
 RUN apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-ARG SMTP_USERNAME
-ARG SMTP_PASSWORD
-ARG RECIPIENT_EMAIL
-
 RUN apt-get update
 RUN apt-get install -y docker-ce
 

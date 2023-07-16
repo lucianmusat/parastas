@@ -14,12 +14,13 @@ start a small Spring Framework project and create a lightweight monitoring tool 
 - Make sure you have you have docker expose daemon on localhost:2375
 - Clone the project
 - run `mvn clean install`
-- Export the env vars `SMTP_USERNAME`, `SMTP_PASSWORD`, `RECIPIENT_EMAIL`. Currently the project uses Google smtp server,
-so you need a google account. SMTP_USERNAME and RECIPIENT_EMAIL can be the same.
-**Don't forget to "allow less secure apps" in you Gmail settings or create an "app password" if you have 2FA enabled.**
+- Got to Settings and set up your SMTP
 - docker compose up -d
 - open up localhost:8080 and if everything is ok you should see the list of running docker containers
 - check the ones you want to monitor
+
+### NOTE
+** I using Gmail SMTP server don't forget to "allow less secure apps" in you Gmail settings or create an "app password" if you have 2FA enabled.**
 
 ### NOTE
 

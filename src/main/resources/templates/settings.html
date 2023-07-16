@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Parastas Settings</title>
+</head>
+<body>
+    <h1>Settings</h1>
+
+    <form th:action="@{/save-settings}" method="post">
+        <div>
+            <label for="smtpHost">SMTP Host:</label>
+            <input type="text" id="smtpHost" name="smtpHost" value="smtp.gmail.com" th:value="${smtpSettings.smtpHost}" th:placeholder="'smtp.gmail.com'">
+        </div>
+        <div>
+            <label for="smtpPort">SMTP Port:</label>
+            <input type="number" id="smtpPort" name="smtpPort" value="587" th:value="${smtpSettings.smtpPort}" th:placeholder="'587'">
+        </div>
+        <div>
+            <label for="smtpUsername">SMTP Username:</label>
+            <input type="text" id="smtpUsername" name="smtpUsername" th:value="${smtpSettings.smtpUsername}" th:placeholder="'youremail@gmail.com'">
+        </div>
+        <div>
+            <label for="smtpPassword">SMTP Password:</label>
+            <input type="password" id="smtpPassword" name="smtpPassword" th:value="${smtpSettings.smtpPassword}">
+        </div>
+        <div>
+            <label for="recipientEmailList">Recipients:</label>
+            <input type="text" id="recipientEmailList" name="recipientEmailList" th:value="${smtpSettings.recipients}" th:placeholder="'youremail@gmail.com'">
+        </div>
+        <div>
+            <label for="refreshPeriod">Refresh Period (s):</label>
+            <input type="number" id="refreshPeriod" name="refreshPeriod" value="1">
+        </div>
+        <div>
+            <button type="submit">Save</button>
+        </div>
+    </form>
+</body>
+</html>

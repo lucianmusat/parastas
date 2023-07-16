@@ -1,14 +1,16 @@
 package online.lucianmusat.Parastas.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.ui.Model;
 
+import online.lucianmusat.Parastas.entities.SmtpSettings;
+import online.lucianmusat.Parastas.entities.SmtpSettingsRepository;
 import online.lucianmusat.Parastas.services.DockerService;
 import online.lucianmusat.Parastas.services.EmailService;
+import online.lucianmusat.Parastas.utils.DockerContainer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,13 +22,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-import online.lucianmusat.Parastas.utils.DockerContainer;
+
+import com.google.common.base.Strings;
 
 @Controller
 public class MainController {
-
-    @Value("${RECIPIENT_EMAIL:}")
-    private String recipient_email;
 
     private static final Logger logger = LogManager.getLogger(MainController.class);
 
@@ -36,6 +36,9 @@ public class MainController {
     private final List<String> downContainers = new ArrayList<>();
     ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
     private static int WATCH_TIME_S = 1;
+
+    @Autowired
+    private SmtpSettingsRepository smtpSettingsRepository;
 
     @Autowired
     public MainController(DockerService dockerService, EmailService emailService) {
@@ -88,14 +91,23 @@ public class MainController {
     };
 
     public void sendNotification(final String containerName, final String containerId, boolean isDown) {
-        if (recipient_email.isEmpty()) {
+        SmtpSettings smtpSettings = smtpSettingsRepository.findById(1L).orElse(new SmtpSettings());
+        if (Strings.isNullOrEmpty(smtpSettings.getRecipients())) {
             logger.error("No recipient email set!");
+            return;
+        }
+        if (Strings.isNullOrEmpty(smtpSettings.getSmtpHost()) || smtpSettings.getSmtpPort() == 0) {
+            logger.error("No SMTP configuration set!");
+            return;
+        }
+        if (Strings.isNullOrEmpty(smtpSettings.getSmtpUsername()) || Strings.isNullOrEmpty(smtpSettings.getSmtpPassword())) {
+            logger.error("No SMTP credentials set!");
             return;
         }
         String subject = "Container state change";
         String body = "Container " + containerName + " (" + containerId.substring(0, 12) + ") is";
         body += isDown ? " down!" : " back up!";
-        emailService.sendEmail(recipient_email, subject, body);
+        emailService.sendEmail(smtpSettings.getRecipients(), subject, body);
     }
 
 }
