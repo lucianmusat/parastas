@@ -2,40 +2,85 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Parastas Settings</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Settings</h1>
+    <div class="container">
+        <h1 class="text-center">Settings</h1>
+        <a href="/" class="logo">
+            <img src="images/left-arrow.png" alt="Back to main page">
+        </a>
 
-    <form th:action="@{/save-settings}" method="post">
-        <div>
-            <label for="smtpHost">SMTP Host:</label>
-            <input type="text" id="smtpHost" name="smtpHost" value="smtp.gmail.com" th:value="${smtpSettings.smtpHost}" th:placeholder="'smtp.gmail.com'">
-        </div>
-        <div>
-            <label for="smtpPort">SMTP Port:</label>
-            <input type="number" id="smtpPort" name="smtpPort" value="587" th:value="${smtpSettings.smtpPort}" th:placeholder="'587'">
-        </div>
-        <div>
-            <label for="smtpUsername">SMTP Username:</label>
-            <input type="text" id="smtpUsername" name="smtpUsername" th:value="${smtpSettings.smtpUsername}" th:placeholder="'youremail@gmail.com'">
-        </div>
-        <div>
-            <label for="smtpPassword">SMTP Password:</label>
-            <input type="password" id="smtpPassword" name="smtpPassword" th:value="${smtpSettings.smtpPassword}">
-        </div>
-        <div>
-            <label for="recipientEmailList">Recipients:</label>
-            <input type="text" id="recipientEmailList" name="recipientEmailList" th:value="${smtpSettings.recipients}" th:placeholder="'youremail@gmail.com'">
-        </div>
-        <div>
-            <label for="refreshPeriod">Refresh Period (s):</label>
-            <input type="number" id="refreshPeriod" name="refreshPeriod" th:value="${stateSettings.refreshPeriodSeconds}" th:placeholder="'1'">
-        </div>
-        <div>
-            <button type="submit">Save</button>
-        </div>
-    </form>
-    <br />
-    <a href="/">Back to main page</a>
+        <form class="needs-validation" th:action="@{/save-settings}" method="post" novalidate>
+            <div class="form-group">
+                <label for="smtpHost">SMTP Host:</label>
+                <input type="text" class="form-control" id="smtpHost" name="smtpHost" value="smtp.gmail.com" th:value="${smtpSettings.smtpHost}" th:placeholder="'smtp.gmail.com'" required>
+                <div class="invalid-feedback">Please provide a SMTP host.</div>
+            </div>
+            <div class="form-group">
+                <label for="smtpPort">SMTP Port:</label>
+                <input type="number" class="form-control" id="smtpPort" name="smtpPort" value="587" th:value="${smtpSettings.smtpPort}" th:placeholder="'587'" required>
+                <div class="invalid-feedback">Please provide a SMTP port.</div>
+            </div>
+            <div class="form-group">
+                <label for="smtpUsername">SMTP Username:</label>
+                <input type="text" class="form-control" id="smtpUsername" name="smtpUsername" th:value="${smtpSettings.smtpUsername}" th:placeholder="'youremail@gmail.com'" required>
+                <div class="invalid-feedback">Please provide a SMTP username.</div>
+            </div>
+            <div class="form-group">
+                <label for="smtpPassword">SMTP Password:</label>
+                <input type="password" class="form-control" id="smtpPassword" name="smtpPassword" th:value="${smtpSettings.smtpPassword}" required>
+                <div class="invalid-feedback">Please provide a SMTP password.</div>
+            </div>
+            <div class="form-group">
+                <label for="recipientEmailList">Recipients:</label>
+                <input type="text" class="form-control" id="recipientEmailList" name="recipientEmailList" th:value="${smtpSettings.recipients}" th:placeholder="'youremail@gmail.com'" required>
+                <div class="invalid-feedback">Please provide recipient emails.</div>
+            </div>
+            <div class="form-group">
+                <label for="refreshPeriod">Refresh Period (s):</label>
+                <input type="number" class="form-control" id="refreshPeriod" name="refreshPeriod" th:value="${stateSettings.refreshPeriodSeconds}" th:placeholder="'1'" required>
+                <div class="invalid-feedback">Please provide a refresh period.</div>
+            </div>
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a href="/" class="btn btn-secondary">Back to main page</a>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script>
+        // Enable form validation
+        (function () {
+            'use strict';
+            window.addEventListener('load', function () {
+                // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
 </body>
 </html>

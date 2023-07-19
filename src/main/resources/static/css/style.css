@@ -1,0 +1,18 @@
+.logo {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 50px;
+}
+
+.settings-link {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.status-icon {
+    margin-left: 18px;
+    width: 24px;
+    height: 24px;
+}
