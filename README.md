@@ -2,6 +2,8 @@
 
 A simple docker container watcher to keep an eye out for running containers and notify when any of them go down.
 
+![How it looks](screenshot.png)
+
 ### Why?
 
 I have some applications running in docker containers on my local raspberry pi and sometimes some of them would 
