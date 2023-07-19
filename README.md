@@ -6,28 +6,19 @@ A simple docker container watcher to keep an eye out for running containers and 
 
 ### Why?
 
-I have some applications running in docker containers on my local raspberry pi and sometimes some of them would 
-error out and stop without me knowing and I wouldn't realise for weeks until I check them out.
-I could have done a simple bash script/cron job to monitor but I thought this would be a good opportunity to
-start a small Spring Framework project and create a lightweight monitoring tool for my containers.
+Like everyone else, I have some applications running in docker containers on my raspberry pi. Sometimes these apps crash and I don't know about it unless I go and check their status. I could of course install a fully fledged monitoring tool like Prometheus, or maybe make a small script and put it in a cronjob, but I thought this could be a good opportunity to learn Spring framework.
 
 ### How to use
 
 - Make sure you have you have docker expose daemon on localhost:2375
 - Clone the project
-- run `mvn clean install`
-- Got to Settings and set up your SMTP
 - docker compose up -d
-- open up localhost:8080 and if everything is ok you should see the list of running docker containers
-- check the ones you want to monitor
+- open up localhost:8080 
+- Got to Settings and set up your SMTP credentials
+If everything is ok you should see the list of running docker containers. Check the ones you want to monitor
 
 ### NOTE
 ** I using Gmail SMTP server don't forget to "allow less secure apps" in you Gmail settings or create an "app password" if you have 2FA enabled.**
-
-### NOTE
-
-This is a work in progress. Depending on how far along I am with the features I plan to implement it might not
-be of any use for anyone else.
 
 ### TODO:
 
