@@ -53,22 +53,32 @@ public class MainController {
     public String index(Model model) {
         List<DockerContainer> containers = dockerService.ListAllDockerContainers();
         containers.removeIf(container -> container.name().contains("parastas"));
+        updateWatchedContainers(containers);
+        startWatching();
         model.addAttribute("containers", containers);
+        model.addAttribute("selectedContainers", watchedContainers);
+        return "index";
+    }
+
+    private void updateWatchedContainers(List<DockerContainer> containers) {
         containers.forEach(container -> {
-            if (!this.watchedContainers.containsKey(container.id())) {
-                this.watchedContainers.put(container.id(), false);
+            if (!watchedContainers.containsKey(container.id())) {
+                watchedContainers.put(container.id(), false);
             }
         });
-        
-        StateSettings stateSettings = stateSettingsRepository.findById(1L).orElse(new StateSettings());
+    }
+
+    private void stopWatching() {
         if (executor != null) {
             executor.shutdownNow();
         }
+    }
+
+    private void startWatching() {
+        StateSettings stateSettings = stateSettingsRepository.findById(1L).orElse(new StateSettings());
+        stopWatching();
         executor = Executors.newScheduledThreadPool(1);
         executor.scheduleAtFixedRate(watchContainers, 0, stateSettings.getRefreshPeriodSeconds(), TimeUnit.SECONDS);
-
-        model.addAttribute("selectedContainers", watchedContainers);
-        return "index";
     }
 
     @GetMapping("/container/{id}")
