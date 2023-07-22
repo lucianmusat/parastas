@@ -12,13 +12,14 @@ Like everyone else, I have some applications running in docker containers on my 
 
 - Make sure you have you have docker expose daemon on localhost:2375
 - Clone the project
+- run ./build_docker.sh
 - docker compose up -d
 - open up localhost:8080 
 - Got to Settings and set up your SMTP credentials
 If everything is ok you should see the list of running docker containers. Check the ones you want to monitor
 
 ### NOTE
-** I using Gmail SMTP server don't forget to "allow less secure apps" in you Gmail settings or create an "app password" if you have 2FA enabled.**
+** If you are using Gmail SMTP server don't forget to "allow less secure apps" in you Gmail settings or create an "app password" if you have 2FA enabled.**
 
 ### TODO:
 

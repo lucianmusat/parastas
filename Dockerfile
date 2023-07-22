@@ -1,10 +1,10 @@
 # Stage 1: Build the Maven project
-FROM maven:3.8.4-openjdk-17-slim AS build
+FROM --platform=linux/amd64 maven:3.8.4-openjdk-17-slim AS build
 WORKDIR /app
 COPY . .
 RUN mvn install
 
-# Stage 2: Create the final Docker image. Use raspbian to be able to run on Raspberry Pi
+# Stage 2: Create the final Docker image.
 FROM docker:24
 
 RUN apk add --no-cache openjdk17
