@@ -22,8 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.Optional;
 
 import com.google.common.base.Strings;
 
@@ -32,10 +31,10 @@ public class MainController {
 
     private static final Logger logger = LogManager.getLogger(MainController.class);
 
-    private EmailService emailService;
+    private final EmailService emailService;
     private final DockerService dockerService;
-    private Map<String, Boolean> watchedContainers = new HashMap<>();
-    private final List<String> downContainers = new ArrayList<>();
+    private final Map<String, Boolean> watchedContainers = new HashMap<>();
+    Map<DockerContainer, Boolean>  containers = new HashMap<>();
     private ScheduledExecutorService executor;
 
     @Autowired
@@ -51,17 +50,17 @@ public class MainController {
 
     @GetMapping("/")
     public String index(Model model) {
-        List<DockerContainer> containers = dockerService.ListAllDockerContainers();
-        containers.removeIf(container -> container.name().contains("parastas"));
-        updateWatchedContainers(containers);
+        containers = dockerService.ListAllDockerContainers();
+        containers.entrySet().removeIf(entry -> entry.getKey().name().contains("parastas"));
+        updateWatchedContainers();
         startWatching();
         model.addAttribute("containers", containers);
         model.addAttribute("selectedContainers", watchedContainers);
         return "index";
     }
 
-    private void updateWatchedContainers(List<DockerContainer> containers) {
-        containers.forEach(container -> {
+    private void updateWatchedContainers() {
+        containers.forEach((container, status) -> {
             if (!watchedContainers.containsKey(container.id())) {
                 watchedContainers.put(container.id(), false);
             }
@@ -83,24 +82,42 @@ public class MainController {
 
     @GetMapping("/container/{id}")
     public String selectContainer(@PathVariable String id) {
-        logger.debug("Selected container: " + id);
+        logger.debug("Selected container: {}", id);
         watchedContainers.put(id, !watchedContainers.getOrDefault(id, false));
         return "redirect:/";
+    }
+
+    private void updateContainerStatus(String containerId, Boolean newStatus) {
+        containers.entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().id().equals(containerId))
+                .findFirst()
+                .ifPresent(entry -> containers.put(entry.getKey(), newStatus));
+    }
+
+    private Boolean getContainerStatus(final String containerId) {
+        Optional<Boolean> status = containers.entrySet()
+            .stream()
+            .filter(entry -> entry.getKey().id().equals(containerId))
+            .map(Map.Entry::getValue)
+            .findFirst();
+
+        return status.orElse(null);
     }
 
     Runnable watchContainers = new Runnable() {
         public void run() {
             watchedContainers.forEach((id, selected) -> {
-                if (selected) {
-                    logger.debug("Checking container: " + id.substring(0, 12));
-                    if (!dockerService.isRunning(id) && !downContainers.contains(id)) {
-                        downContainers.add(id);
-                        logger.warn("Container: " + id + " is down!");
+                if (Boolean.TRUE.equals(selected)) {
+                    logger.debug("Checking container: {}", id.substring(0, 12));
+                    if (!dockerService.isRunning(id) && !getContainerStatus(id)) {
+                        updateContainerStatus(id, false);
+                        logger.warn("Container: {} is down", id);
                         sendNotification(dockerService.getContainerName(id), id, true);
                     }
-                    if (dockerService.isRunning(id) && downContainers.contains(id)) {
-                        downContainers.remove(id);
-                        logger.info("Container: " + id + " is back up!");
+                    if (dockerService.isRunning(id) && getContainerStatus(id)) {
+                        updateContainerStatus(id, true);
+                        logger.info("Container: {} is back up!", id);
                         sendNotification(dockerService.getContainerName(id), id, false);
                     }
                 }
@@ -126,6 +143,13 @@ public class MainController {
         String body = "Container " + containerName + " (" + containerId.substring(0, 12) + ") is";
         body += isDown ? " down!" : " back up!";
         emailService.sendEmail(smtpSettings.getRecipients(), subject, body);
+    }
+
+    @GetMapping("/container/{id}/status/{status}")
+    public String setContainerStatus(@PathVariable String id, @PathVariable boolean status) {
+        logger.debug("Setting container: {} status to: {}", id, status);
+        updateContainerStatus(id, status);
+        return "redirect:/";
     }
 
 }

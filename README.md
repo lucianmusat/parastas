@@ -27,4 +27,5 @@ If everything is ok you should see the list of running docker containers. Check 
  - [X] Add email notifications functionality.
  - [X] Add settings page where you can configure your email and check frequency.
  - [X] Make UI nicer.
- - [ ] Update status icons for containers in the UI based on status.
+ - [X] Update status icons for containers in the UI based on status.
+ - [ ] Add support to start/stop containers from the UI.

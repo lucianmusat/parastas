@@ -10,9 +10,9 @@ import online.lucianmusat.Parastas.utils.DockerContainer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Map;
+import java.util.HashMap;
 
-import java.util.List;
-import java.util.ArrayList;
 
 @Service
 public class DockerService {
@@ -25,12 +25,12 @@ public class DockerService {
         DockerService.dockerClient = dockerClient;
     }
 
-    public List<DockerContainer> ListAllDockerContainers() {
+    public Map<DockerContainer, Boolean> ListAllDockerContainers() {
         logger.debug("Listing all containers");
-        List<DockerContainer> containers = new ArrayList<>();
+        Map<DockerContainer, Boolean> containers = new HashMap<>();
         try {
-            dockerClient.listContainersCmd().withStatusFilter(List.of("running")).exec().forEach(container -> {
-                containers.add(new DockerContainer(container.getId(), container.getImage()));
+            dockerClient.listContainersCmd().withShowAll(true).exec().forEach(container -> {
+                containers.put(new DockerContainer(container.getId(), container.getImage()), container.getState().equals("running"));
             });
         } catch (Exception e) {
             logger.error("Error while listing containers: " + e.getMessage());

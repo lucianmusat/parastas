@@ -21,14 +21,18 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="container: ${containers}">
+                <tr th:each="container, status: ${containers}">
                     <td>
                         <input type="checkbox" th:id="${container.id}" onclick="handleClick(this);" th:checked="${selectedContainers.get(container.id)}">
                     </td>
                     <td><img th:src="@{/images/container48.png}" alt="Container Icon" width="24" height="24"></td>
                     <td th:text="${container.name}"></td>
                     <td th:text="${container.shortID}"></td>
-                    <td><img th:src="@{/images/green_tickbox.png}" alt="Status Icon" class="status-icon" title="Container is up"></td>
+                    <td>
+                        <img th:src="${status ? '/images/green_tickbox.png' : '/images/red_crossmark.png'}"
+                             alt="Status Icon" class="status-icon"
+                             th:title="${status ? 'Container is up' : 'Container is down'}">
+                    </td>
                 </tr>
             </tbody>
         </table>
