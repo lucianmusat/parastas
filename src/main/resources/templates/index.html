@@ -8,7 +8,7 @@
 <body>
     <div class="container">
         <div class="logo">
-            <img th:src="@{/images/logo.png}" alt="Logo">
+            <a href="/"><img th:src="@{/images/logo.png}" alt="Logo"></a>
         </div>
         <table class="table">
             <thead class="thead-dark">
@@ -18,21 +18,25 @@
                     <th>Name</th>
                     <th>Short ID</th>
                     <th>Status</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="container, status: ${containers}">
+                <tr th:each="container : ${containers.entrySet()}">
                     <td>
-                        <input type="checkbox" th:id="${container.id}" onclick="handleClick(this);" th:checked="${selectedContainers.get(container.id)}">
+                        <input type="checkbox" th:id="${container.key.id}" th:checked="${selectedContainers.get(container.key.id)}" 
+                            th:attr="onclick='selectClick(\'' + ${container.key.id} + '\');'">
                     </td>
                     <td><img th:src="@{/images/container48.png}" alt="Container Icon" width="24" height="24"></td>
-                    <td th:text="${container.name}"></td>
-                    <td th:text="${container.shortID}"></td>
+                    <td th:text="${container.key.name}"></td>
+                    <td th:text="${container.key.shortID}"></td>
                     <td>
-                        <img th:src="${status ? '/images/green_tickbox.png' : '/images/red_crossmark.png'}"
+                        <img th:src="${container.value ? '/images/green_tickbox.png' : '/images/red_crossmark.png'}"
                              alt="Status Icon" class="status-icon"
-                             th:title="${status ? 'Container is up' : 'Container is down'}">
+                             th:title="${container.value ? 'Container is up' : 'Container is down'}">
                     </td>
+                    <td><button th:attr="onclick='toggleStatus(\'' + ${container.key.id} + '\');'" class="btn btn-primary" 
+                        th:text="${container.value ? 'Stop' : 'Start' }">Start/Stop</button></td>
                 </tr>
             </tbody>
         </table>
@@ -45,8 +49,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
-        function handleClick(cb) {
-            window.location.href = "/container/" + cb.id;
+        function selectClick(container) {
+            window.location.href = "/container/" + container + "/toggleSelect";
+        }
+        function toggleStatus(container) {
+            window.location.href = "/container/" + container + "/toggleStatus";
         }
     </script>
 </body>

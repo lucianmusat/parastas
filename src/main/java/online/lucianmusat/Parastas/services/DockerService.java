@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 
 
@@ -39,23 +40,35 @@ public class DockerService {
         return containers;
     }
 
-    public Boolean isRunning(String containerId) {
-        logger.debug("Checking if container " + containerId + " is running");
+    public Boolean isRunning(@Nonnull final String containerId) {
         try {
-            return dockerClient.inspectContainerCmd(containerId).exec().getState().getRunning();
+           return dockerClient.inspectContainerCmd(containerId).exec().getState().getRunning();
         } catch (Exception e) {
             logger.error("Error while checking if container " + containerId + " is running: " + e.getMessage());
             return false;
         }
     }
 
-    public String getContainerName(String containerId) {
+    public String getContainerName(@Nonnull final String containerId) {
         logger.debug("Getting container name for container " + containerId);
         try {
             return dockerClient.inspectContainerCmd(containerId).exec().getName().substring(1);
         } catch (Exception e) {
             logger.error("Error while getting container name for container " + containerId + ": " + e.getMessage());
             return "";
+        }
+    }
+
+    public void toggleContainerStatus(@Nonnull final String containerId) {
+        logger.debug("Toggling container " + containerId);
+        try {
+            if (isRunning(containerId)) {
+                dockerClient.stopContainerCmd(containerId).exec();
+            } else {
+                dockerClient.startContainerCmd(containerId).exec();
+            }
+        } catch (Exception e) {
+            logger.error("Error while toggling container " + containerId + ": " + e.getMessage());
         }
     }
 

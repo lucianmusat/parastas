@@ -18,11 +18,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Optional;
+import javax.annotation.Nonnull;
 
 import com.google.common.base.Strings;
 
@@ -33,19 +35,29 @@ public class MainController {
 
     private final EmailService emailService;
     private final DockerService dockerService;
-    private final Map<String, Boolean> watchedContainers = new HashMap<>();
-    Map<DockerContainer, Boolean>  containers = new HashMap<>();
-    private ScheduledExecutorService executor;
-
-    @Autowired
     private StateSettingsRepository stateSettingsRepository;
+    private final Map<String, Boolean> watchedContainers = new ConcurrentHashMap<>();
+    private Map<DockerContainer, Boolean>  containers = new ConcurrentHashMap<>();
+    private ScheduledExecutorService executor;
+    private AtomicInteger refreshPeriodSeconds = new AtomicInteger(60);
+    private StateSettings stateSettings;
+
+    private final int nrThreads = 1;
+
+
     @Autowired
     private SmtpSettingsRepository smtpSettingsRepository;
 
     @Autowired
-    public MainController(DockerService dockerService, EmailService emailService) {
+    public MainController(DockerService dockerService, EmailService emailService, StateSettingsRepository stateSettingsRepository) {
         this.dockerService = dockerService;
         this.emailService = emailService;
+        this.stateSettingsRepository = stateSettingsRepository;
+        // There is a thing called @Scheduled method in Spring, but I need an easy way to update the refresh period on the fly
+        executor = Executors.newScheduledThreadPool(nrThreads);
+        stateSettings = stateSettingsRepository.findById(1L).orElse(new StateSettings());
+        refreshPeriodSeconds.set(stateSettings.getRefreshPeriodSeconds());
+        executor.scheduleAtFixedRate(watchContainers, 0, refreshPeriodSeconds.get(), TimeUnit.SECONDS);
     }
 
     @GetMapping("/")
@@ -53,10 +65,14 @@ public class MainController {
         containers = dockerService.ListAllDockerContainers();
         containers.entrySet().removeIf(entry -> entry.getKey().name().contains("parastas"));
         updateWatchedContainers();
-        startWatching();
+        updateExecutorSettings();
+        updateModels(model);
+        return "index";
+    }
+
+    private void updateModels(Model model) {
         model.addAttribute("containers", containers);
         model.addAttribute("selectedContainers", watchedContainers);
-        return "index";
     }
 
     private void updateWatchedContainers() {
@@ -73,21 +89,26 @@ public class MainController {
         }
     }
 
-    private void startWatching() {
-        StateSettings stateSettings = stateSettingsRepository.findById(1L).orElse(new StateSettings());
-        stopWatching();
-        executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(watchContainers, 0, stateSettings.getRefreshPeriodSeconds(), TimeUnit.SECONDS);
+    private void updateExecutorSettings() {
+        int newRefreshPeriodSeconds = stateSettingsRepository.findById(1L).get().getRefreshPeriodSeconds();
+        if (newRefreshPeriodSeconds != refreshPeriodSeconds.get()) {
+            logger.info("Updating refresh period to {} seconds", newRefreshPeriodSeconds);
+            stopWatching();
+            executor = Executors.newScheduledThreadPool(nrThreads);
+            refreshPeriodSeconds.set(newRefreshPeriodSeconds);
+            executor.scheduleAtFixedRate(watchContainers, 0, refreshPeriodSeconds.get(), TimeUnit.SECONDS);
+        }
     }
 
-    @GetMapping("/container/{id}")
-    public String selectContainer(@PathVariable String id) {
-        logger.debug("Selected container: {}", id);
+    @GetMapping("/container/{id}/toggleSelect")
+    public String toggleContainer(@PathVariable String id, Model model) {
+        logger.info("Selected container: {}", id);
         watchedContainers.put(id, !watchedContainers.getOrDefault(id, false));
         return "redirect:/";
     }
 
     private void updateContainerStatus(String containerId, Boolean newStatus) {
+        logger.debug("Updating container: {} status to: {}", containerId.substring(0, 12), newStatus);
         containers.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().id().equals(containerId))
@@ -96,32 +117,36 @@ public class MainController {
     }
 
     private Boolean getContainerStatus(final String containerId) {
+        logger.debug("Getting container: {} status", containerId.substring(0, 12));
         Optional<Boolean> status = containers.entrySet()
             .stream()
             .filter(entry -> entry.getKey().id().equals(containerId))
             .map(Map.Entry::getValue)
             .findFirst();
-
-        return status.orElse(null);
+        return status.orElse(false);
     }
 
     Runnable watchContainers = new Runnable() {
         public void run() {
-            watchedContainers.forEach((id, selected) -> {
-                if (Boolean.TRUE.equals(selected)) {
-                    logger.debug("Checking container: {}", id.substring(0, 12));
-                    if (!dockerService.isRunning(id) && !getContainerStatus(id)) {
-                        updateContainerStatus(id, false);
-                        logger.warn("Container: {} is down", id);
-                        sendNotification(dockerService.getContainerName(id), id, true);
+            try {
+                watchedContainers.forEach((id, selected) -> {
+                    if (Boolean.TRUE.equals(selected)) {
+                       Boolean isRunning = dockerService.isRunning(id);
+                        if (Boolean.FALSE.equals(isRunning) && Boolean.TRUE.equals(getContainerStatus(id))) {
+                            logger.warn("Container: {} is down", id);
+                            updateContainerStatus(id, false);
+                            sendNotification(dockerService.getContainerName(id), id, true);
+                        }
+                        if (Boolean.TRUE.equals(isRunning) && Boolean.FALSE.equals(getContainerStatus(id))) {
+                            logger.info("Container: {} is back up!", id);
+                            updateContainerStatus(id, true);
+                            sendNotification(dockerService.getContainerName(id), id, false);
+                        }
                     }
-                    if (dockerService.isRunning(id) && getContainerStatus(id)) {
-                        updateContainerStatus(id, true);
-                        logger.info("Container: {} is back up!", id);
-                        sendNotification(dockerService.getContainerName(id), id, false);
-                    }
-                }
-            });
+                });
+            } catch (Exception e) {
+                logger.error("Error checking containers: {}", e);
+            }
         }
     };
 
@@ -145,10 +170,9 @@ public class MainController {
         emailService.sendEmail(smtpSettings.getRecipients(), subject, body);
     }
 
-    @GetMapping("/container/{id}/status/{status}")
-    public String setContainerStatus(@PathVariable String id, @PathVariable boolean status) {
-        logger.debug("Setting container: {} status to: {}", id, status);
-        updateContainerStatus(id, status);
+    @GetMapping("/container/{id}/toggleStatus")
+    public String setContainerStatus(@PathVariable @Nonnull String id) {
+        dockerService.toggleContainerStatus(id);
         return "redirect:/";
     }
 
