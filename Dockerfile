@@ -10,6 +10,6 @@ FROM docker:24
 RUN apk add --no-cache openjdk17
 
 WORKDIR /app
-COPY --from=build /app/target/Parastas-0.0.1-SNAPSHOT.jar .
+COPY --from=build /app/target/Parastas-1.0.0-SNAPSHOT.jar .
 
 CMD ["java", "-jar", "Parastas-1.0.0-SNAPSHOT.jar"]
