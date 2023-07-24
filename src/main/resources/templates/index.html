@@ -13,7 +13,7 @@
         <table class="table">
             <thead class="thead-dark">
                 <tr>
-                    <th></th>
+                    <th>Monitor</th>
                     <th></th>
                     <th>Name</th>
                     <th>Short ID</th>
@@ -33,10 +33,11 @@
                     <td>
                         <img th:src="${container.value ? '/images/green_tickbox.png' : '/images/red_crossmark.png'}"
                              alt="Status Icon" class="status-icon"
-                             th:title="${container.value ? 'Container is up' : 'Container is down'}">
+                             th:title="${container.value ? 'Container is up' : 'Container is down'}"
+                             th:id="'status_icon_' + ${container.key.id}">
                     </td>
                     <td><button th:attr="onclick='toggleStatus(\'' + ${container.key.id} + '\');'" class="btn btn-primary" 
-                        th:text="${container.value ? 'Stop' : 'Start' }">Start/Stop</button></td>
+                        th:text="${container.value ? 'Stop' : 'Start' }" th:id="'action_button_' + ${container.key.id}">Start/Stop</button></td>
                 </tr>
             </tbody>
         </table>
@@ -52,9 +53,49 @@
         function selectClick(container) {
             window.location.href = "/container/" + container + "/toggleSelect";
         }
+
         function toggleStatus(container) {
             window.location.href = "/container/" + container + "/toggleStatus";
         }
+
+        function updateContainerStatus(containerId) {
+        fetch(`/container/${containerId}/status`)
+            .then(response => response.text())
+            .then(status => {
+                const statusIcon = document.getElementById(`status_icon_${containerId}`);
+                const actionButton = document.getElementById(`action_button_${containerId}`);
+
+                if (status === "true") {
+                    statusIcon.src = "/images/green_tickbox.png";
+                    statusIcon.alt = "Container is up";
+                    actionButton.innerText = "Stop";
+                } else {
+                    statusIcon.src = "/images/red_crossmark.png";
+                    statusIcon.alt = "Container is down";
+                    actionButton.innerText = "Start";
+                }
+            })
+            .catch(error => {
+                console.error(`Error updating container ${containerId} status: ${error}`);
+            });
+    }
+
+        // Function to start polling container status for all containers
+        function startPolling() {
+            const containerIds = [];
+             // Loop through each container row and extract the container ID
+            document.querySelectorAll("[id^='status_icon_']").forEach(element => {
+                const containerId = element.getAttribute("id").replace("status_icon_", "");
+                containerIds.push(containerId);
+            });
+            containerIds.forEach(id => {
+                updateContainerStatus(id);
+                setInterval(() => updateContainerStatus(id), 5000); // Poll every 5 seconds
+            });
+        }
+
+        // Start polling on page load
+        startPolling();
     </script>
 </body>
 </html>

@@ -1,9 +1,11 @@
 package online.lucianmusat.Parastas.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.ui.Model;
 
 import online.lucianmusat.Parastas.entities.SmtpSettings;
@@ -19,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -27,6 +30,11 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 
 import com.google.common.base.Strings;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+
 
 @Controller
 public class MainController {
@@ -41,6 +49,7 @@ public class MainController {
     private ScheduledExecutorService executor;
     private AtomicInteger refreshPeriodSeconds = new AtomicInteger(60);
     private StateSettings stateSettings;
+    private final CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
     private final int nrThreads = 1;
 
@@ -174,6 +183,13 @@ public class MainController {
     public String setContainerStatus(@PathVariable @Nonnull String id) {
         dockerService.toggleContainerStatus(id);
         return "redirect:/";
+    }
+
+    @GetMapping("/container/{id}/status")
+    public ResponseEntity<String> containerStatus(@PathVariable @Nonnull String id) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        return new ResponseEntity<>(dockerService.isRunning(id).toString(), headers, HttpStatus.OK);
     }
 
 }
