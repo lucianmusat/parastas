@@ -134,22 +134,26 @@ public class MainController {
 
     Runnable watchContainers = new Runnable() {
         public void run() {
+            watchedContainers.entrySet().stream()
+                             .filter(Map.Entry::getValue)
+                             .map(Map.Entry::getKey)
+                             .forEach(this::watchContainer);
+        }
+
+        void watchContainer(@Nonnull String containerId) {
             try {
-                watchedContainers.forEach((id, selected) -> {
-                    if (Boolean.TRUE.equals(selected)) {
-                        Boolean isRunning = dockerService.isRunning(id);
-                        if (Boolean.FALSE.equals(isRunning) && Boolean.TRUE.equals(getContainerStatus(id))) {
-                            logger.warn("Container: {} is down", id);
-                            updateContainerStatus(id, false);
-                            sendNotification(dockerService.getContainerName(id), id, true);
-                        }
-                        if (Boolean.TRUE.equals(isRunning) && Boolean.FALSE.equals(getContainerStatus(id))) {
-                            logger.info("Container: {} is back up!", id);
-                            updateContainerStatus(id, true);
-                            sendNotification(dockerService.getContainerName(id), id, false);
-                        }
-                    }
-                });
+                logger.info("Checking container: {}", containerId);
+                Boolean isRunning = dockerService.isRunning(containerId);
+                if (Boolean.FALSE.equals(isRunning) && Boolean.TRUE.equals(getContainerStatus(containerId))) {
+                    logger.warn("Container: {} is down", containerId);
+                    updateContainerStatus(containerId, false);
+                    sendNotification(dockerService.getContainerName(containerId), containerId, true);
+                }
+                if (Boolean.TRUE.equals(isRunning) && Boolean.FALSE.equals(getContainerStatus(containerId))) {
+                    logger.info("Container: {} is back up!", containerId);
+                    updateContainerStatus(containerId, true);
+                    sendNotification(dockerService.getContainerName(containerId), containerId, false);
+                }
             } catch (Exception e) {
                 logger.error("Error checking containers: {}", e);
             }
