@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.ui.Model;
 
 import online.lucianmusat.Parastas.entities.SmtpSettings;
@@ -21,7 +20,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -49,8 +47,6 @@ public class MainController {
     private ScheduledExecutorService executor;
     private AtomicInteger refreshPeriodSeconds = new AtomicInteger(60);
     private StateSettings stateSettings;
-    private final CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
-
     private final int nrThreads = 1;
 
 
@@ -82,6 +78,7 @@ public class MainController {
     private void updateModels(Model model) {
         model.addAttribute("containers", containers);
         model.addAttribute("selectedContainers", watchedContainers);
+        model.addAttribute("allWatched", !watchedContainers.containsValue(false));
     }
 
     private void updateWatchedContainers() {
@@ -99,7 +96,7 @@ public class MainController {
     }
 
     private void updateExecutorSettings() {
-        int newRefreshPeriodSeconds = stateSettingsRepository.findById(1L).get().getRefreshPeriodSeconds();
+        int newRefreshPeriodSeconds = stateSettingsRepository.findById(1L).orElse(stateSettings).getRefreshPeriodSeconds();
         if (newRefreshPeriodSeconds != refreshPeriodSeconds.get()) {
             logger.info("Updating refresh period to {} seconds", newRefreshPeriodSeconds);
             stopWatching();
@@ -140,7 +137,7 @@ public class MainController {
             try {
                 watchedContainers.forEach((id, selected) -> {
                     if (Boolean.TRUE.equals(selected)) {
-                       Boolean isRunning = dockerService.isRunning(id);
+                        Boolean isRunning = dockerService.isRunning(id);
                         if (Boolean.FALSE.equals(isRunning) && Boolean.TRUE.equals(getContainerStatus(id))) {
                             logger.warn("Container: {} is down", id);
                             updateContainerStatus(id, false);
@@ -190,6 +187,21 @@ public class MainController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         return new ResponseEntity<>(dockerService.isRunning(id).toString(), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/container/toggleAll")
+    public String toggleAllContainers() {
+        boolean hasTrueValue = watchedContainers.containsValue(true);
+        boolean allFalse = !watchedContainers.containsValue(true);
+        boolean allTrue = !watchedContainers.containsValue(false);
+
+        if ((hasTrueValue && !allTrue) || allFalse) {
+            watchedContainers.replaceAll((key, value) -> true);
+        } else {
+            watchedContainers.replaceAll((key, value) -> false);
+        }
+
+        return "redirect:/";
     }
 
 }
