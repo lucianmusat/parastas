@@ -16,6 +16,7 @@ Like everyone else, I have some applications running in docker containers on my 
 - docker compose up -d
 - open up localhost:8080 
 - Got to Settings and set up your SMTP credentials
+
 If everything is ok you should see the list of running docker containers. Check the ones you want to monitor
 
 ### NOTE
