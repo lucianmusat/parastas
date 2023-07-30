@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 
@@ -142,7 +143,7 @@ public class MainController {
 
         void watchContainer(@Nonnull String containerId) {
             try {
-                logger.info("Checking container: {}", containerId);
+                logger.debug("Checking container: {}", containerId);
                 Boolean isRunning = dockerService.isRunning(containerId);
                 if (Boolean.FALSE.equals(isRunning) && Boolean.TRUE.equals(getContainerStatus(containerId))) {
                     logger.warn("Container: {} is down", containerId);
@@ -177,6 +178,8 @@ public class MainController {
         String subject = "Container state change";
         String body = "Container " + containerName + " (" + containerId.substring(0, 12) + ") is";
         body += isDown ? " down!" : " back up!";
+        body += "\n\n";
+        body += dockerService.getContainerLogs(containerId, 10).stream().collect(Collectors.joining());
         emailService.sendEmail(smtpSettings.getRecipients(), subject, body);
     }
 
@@ -206,6 +209,15 @@ public class MainController {
         }
 
         return "redirect:/";
+    }
+
+    @GetMapping("/container/{id}/logs/{lines}")
+    public String displayContainerLogs(@PathVariable @Nonnull String id, @PathVariable(required = false) Integer lines, Model model) {
+        if (lines == null) {
+            lines = 10;
+        }
+        model.addAttribute("containerLogs", dockerService.getContainerLogs(id, lines));
+        return "logs";
     }
 
 }

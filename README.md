@@ -30,6 +30,6 @@ If everything is ok you should see the list of running docker containers. Check 
  - [X] Make UI nicer.
  - [X] Update status icons for containers in the UI based on status.
  - [X] Add support to start/stop containers from the UI.
- - [ ] Add latest logs in the email notification.
- - [ ] Add ability to click on container and see latest logs.
+ - [X] Add latest logs in the email notification.
+ - [X] Add ability to click on container and see latest logs.
  - [ ] Add browser side rendering

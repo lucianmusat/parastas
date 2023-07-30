@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Parastas</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{~/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="backarrow">
+            <img th:src="@{~/images/left-arrow.png}" alt="Back to main page">
+        </a>
+        <div class="logo">
+            <a href="/"><img th:src="@{~/images/logo.png}" alt="Logo"></a>
+        </div>
+        <div class="container-logs">
+            <table>
+                <tbody>
+                    <tr th:each="log : ${containerLogs}">
+                        <td th:text="${log}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <a href="/settings" class="settings-link">
+            <img th:src="@{~/images/settings64.png}" alt="Settings">
+        </a>
+    </div>
+</body>
+</html>
