@@ -20,4 +20,8 @@ public class DockerContainer {
     public String shortID() {
         return this.id.substring(0, 12);
     }
+
+    public String toString() {
+        return this.name + " (" + this.shortID() + ")";
+    }
 }

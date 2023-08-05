@@ -70,6 +70,7 @@ public class MainController {
     public String index(Model model) {
         containers = dockerService.ListAllDockerContainers();
         containers.entrySet().removeIf(entry -> entry.getKey().name().contains("parastas"));
+        cleanWatchedContainers();
         updateWatchedContainers();
         updateExecutorSettings();
         updateModels(model);
@@ -80,6 +81,12 @@ public class MainController {
         model.addAttribute("containers", containers);
         model.addAttribute("selectedContainers", watchedContainers);
         model.addAttribute("allWatched", !watchedContainers.containsValue(false));
+    }
+
+    public void cleanWatchedContainers() {
+        watchedContainers.keySet()
+                .removeIf(containerId -> containers.keySet().stream()
+                        .noneMatch(container -> container.id().equals(containerId)));
     }
 
     private void updateWatchedContainers() {
