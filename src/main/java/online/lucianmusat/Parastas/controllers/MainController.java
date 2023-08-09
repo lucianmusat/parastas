@@ -3,6 +3,7 @@ package online.lucianmusat.Parastas.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.ui.Model;
@@ -36,6 +37,7 @@ import org.springframework.http.MediaType;
 
 
 @Controller
+@RequestMapping("/parastas")
 public class MainController {
 
     private static final Logger logger = LogManager.getLogger(MainController.class);
@@ -111,7 +113,7 @@ public class MainController {
     public String toggleContainer(@PathVariable String id, Model model) {
         logger.info("Selected container: {}", id);
         watchedContainers.put(id, !watchedContainers.getOrDefault(id, false));
-        return "redirect:/";
+        return "redirect:/parastas/";
     }
 
     private void updateContainerStatus(String containerId, Boolean newStatus) {
@@ -186,7 +188,7 @@ public class MainController {
     @GetMapping("/container/{id}/toggleStatus")
     public String setContainerStatus(@PathVariable @Nonnull String id) {
         dockerService.toggleContainerStatus(id);
-        return "redirect:/";
+        return "redirect:/parastas/";
     }
 
     @GetMapping("/container/{id}/status")
@@ -208,7 +210,7 @@ public class MainController {
             watchedContainers.replaceAll((key, value) -> false);
         }
 
-        return "redirect:/";
+        return "redirect:/parastas/";
     }
 
     @GetMapping("/container/{id}/logs/{lines}")

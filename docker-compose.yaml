@@ -3,7 +3,7 @@ services:
   parastas:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.arm
     ports:
       - 8080:8080
     volumes:

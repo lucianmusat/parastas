@@ -51,31 +51,31 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
         function selectClick(container) {
-            window.location.href = "/container/" + container + "/toggleSelect";
+            window.location.href = "/parastas/container/" + container + "/toggleSelect";
         }
 
         function toggleStatus(container) {
-            window.location.href = "/container/" + container + "/toggleStatus";
+            window.location.href = "/parastas/container/" + container + "/toggleStatus";
         }
 
         function onToggleAll() {
-            window.location.href = "/container/toggleAll";
+            window.location.href = "/parastas/container/toggleAll";
         }
 
         function updateContainerStatus(containerId) {
-        fetch(`/container/${containerId}/status`)
+        fetch(`/parastas/container/${containerId}/status`)
             .then(response => response.text())
             .then(status => {
                 const statusIcon = document.getElementById(`status_icon_${containerId}`);
                 const actionButton = document.getElementById(`action_button_${containerId}`);
 
                 if (status === "true") {
-                    statusIcon.src = "/images/green_tickbox.png";
-                    statusIcon.alt = "Container is up";
+                    statusIcon.src = "/parastas/images/green_tickbox.png";
+                    statusIcon.title = "Container is up";
                     actionButton.innerText = "Stop";
                 } else {
-                    statusIcon.src = "/images/red_crossmark.png";
-                    statusIcon.alt = "Container is down";
+                    statusIcon.src = "/parastas/images/red_crossmark.png";
+                    statusIcon.title = "Container is down";
                     actionButton.innerText = "Start";
                 }
             })

@@ -20,6 +20,7 @@ import jakarta.validation.Valid;
 
 
 @Controller
+@RequestMapping("/parastas")
 public class SettingsController {
 
     private static final Logger logger = LogManager.getLogger(MainController.class);
