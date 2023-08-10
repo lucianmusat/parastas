@@ -25,7 +25,7 @@ import java.util.List;
 
 @Service
 public class DockerService {
-    
+
     private static final Logger logger = LogManager.getLogger(DockerService.class);
     private static DockerClient dockerClient;
 

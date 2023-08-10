@@ -27,7 +27,7 @@ import com.google.common.base.Strings;
 @Configuration
 @EnableAsync // for @Async annotation
 public class ParastasConfiguration {
-    
+
     private static final Logger logger = LogManager.getLogger(ParastasConfiguration.class);
 
     @Bean

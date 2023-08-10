@@ -24,12 +24,7 @@ If everything is ok you should see the list of running docker containers. Check 
 
 ### TODO:
 
- - [X] Run in Docker container
- - [X] Add email notifications functionality.
- - [X] Add settings page where you can configure your email and check frequency.
- - [X] Make UI nicer.
- - [X] Update status icons for containers in the UI based on status.
- - [X] Add support to start/stop containers from the UI.
  - [X] Add latest logs in the email notification.
  - [X] Add ability to click on container and see latest logs.
+ - [ ] Add error page
  - [ ] Add browser side rendering
