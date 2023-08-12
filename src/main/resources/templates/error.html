@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Parastas</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{~/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="backarrow">
+            <img th:src="@{~/images/left-arrow.png}" alt="Back to main page">
+        </a>
+        <div class="logo">
+            <a href="/"><img th:src="@{~/images/logo_404.png}" alt="Logo"></a>
+        </div>
+        <div class="error">
+            <h1>This is not the page you're looking for!</h1>
+            <h2>You should head on <a href="/">back</a> to the main page.</h2>
+        </div>
+    </div>
+</body>
+</html>

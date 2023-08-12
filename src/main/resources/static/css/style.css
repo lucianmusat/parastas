@@ -31,3 +31,10 @@ body {
     top: 20px;
     left: 20px;
 }
+
+.error {
+    text-align: center;
+    margin-top: 150px;
+    justify-content: center;
+    align-items: center;
+}
