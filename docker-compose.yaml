@@ -1,6 +1,9 @@
 version: '3.9'
 services:
   parastas:
+    environment:
+    - PARASTAS_USERNAME=${PARASTAS_USERNAME}
+    - PARASTAS_PASSWORD=${PARASTAS_PASSWORD}
     build:
       context: .
       dockerfile: Dockerfile.arm
