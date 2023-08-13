@@ -16,6 +16,10 @@ public class SettingsForm {
     private String recipientEmailList;
     @NotBlank(message = "Refresh Period cannot be empty")
     private String refreshPeriod;
+    @NotBlank(message = "Username cannot be empty")
+    private String username;
+    private String oldPassword;
+    private String newPassword;
 
     public String getSmtpHost() {
         return smtpHost;
@@ -63,6 +67,30 @@ public class SettingsForm {
 
     public void setRefreshPeriod(String refreshPeriod) {
         this.refreshPeriod = refreshPeriod;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String newUsername) {
+        username = newUsername;
+    }
+
+    public String getOldPassword() {
+        return oldPassword;
+    }
+
+    public void setOldPassword(String newPassword) {
+        oldPassword = newPassword;
+    }
+
+    public String getNewPassword() {
+        return newPassword;
+    }
+
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
     }
 }
 

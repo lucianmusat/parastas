@@ -9,12 +9,12 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.context.annotation.Scope;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.core.userdetails.User;
 
 import com.github.dockerjava.api.DockerClient;
@@ -25,6 +25,7 @@ import com.github.dockerjava.transport.DockerHttpClient;
 
 import online.lucianmusat.Parastas.entities.SmtpSettings;
 import online.lucianmusat.Parastas.entities.SmtpSettingsRepository;
+import online.lucianmusat.Parastas.services.CredentialsService;
 import online.lucianmusat.Parastas.entities.Credentials;
 
 import java.util.Properties;
@@ -97,19 +98,19 @@ public class ParastasConfiguration {
     public class AuthorizeUrlsSecurityConfig {
 
         @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-            http.authorizeRequests().requestMatchers("/**").hasRole("USER").and().formLogin();
-            return http.build();
-        }
-
-        @Bean
-        public UserDetailsService userDetailsService(Credentials credentials) {
-            UserDetails admin = User.withDefaultPasswordEncoder()
+        public UserDetailsService userDetailsService(CredentialsService credentialsService) {
+            Credentials credentials = credentialsService.getCredentials();
+            UserDetails admin = User.builder()
                 .username(credentials.getUsername())
                 .password(credentials.getPassword())
                 .roles("ADMIN", "USER")
                 .build();
             return new InMemoryUserDetailsManager(admin);
+        }
+
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+            return new BCryptPasswordEncoder();
         }
     }
 

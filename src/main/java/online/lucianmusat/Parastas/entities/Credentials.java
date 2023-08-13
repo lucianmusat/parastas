@@ -1,12 +1,15 @@
 package online.lucianmusat.Parastas.entities;
 
-import org.springframework.stereotype.Component;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
-@Component
+@Entity
 public class Credentials {
 
-    private String username = "admin";
-    private String password = "admin";
+    @Id
+    private Long id = 1L;
+    private String username;
+    private String password;
 
     public String getUsername() {
         return username;
