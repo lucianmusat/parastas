@@ -22,9 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 
 @SpringBootTest
@@ -64,16 +62,18 @@ class ParastasApplicationTests {
 
         assertEquals(2, containers.size());
 
-        List<String> expectedIds = Arrays.asList("container1", "container2");
-        List<Boolean> expectedStatus = Arrays.asList(true, true);
+        Map<String, Boolean> expectedStatusMap = new HashMap<>();
+        expectedStatusMap.put("container1", true);
+        expectedStatusMap.put("container2", true);
 
-        IntStream.range(0, containers.size())
-        .mapToObj(index -> containers.keySet().toArray(new DockerContainer[0])[index])
-        .forEach(container -> {
-            int index = containers.keySet().stream().toList().indexOf(container);
-            assertEquals(expectedIds.get(index), container.id());
-            assertEquals(expectedStatus.get(index), containers.get(container));
-        });
+        for (Map.Entry<DockerContainer, Boolean> entry : containers.entrySet()) {
+            DockerContainer container = entry.getKey();
+            String containerId = container.id();
+            Boolean actualStatus = entry.getValue();
+            Boolean expectedStatus = expectedStatusMap.get(containerId);
+            assertNotNull(expectedStatus);
+            assertEquals(expectedStatus, actualStatus);
+        }
     }
 
     @Test
