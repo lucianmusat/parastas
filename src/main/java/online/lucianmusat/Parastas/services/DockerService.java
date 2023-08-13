@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.LogContainerCmd;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.github.dockerjava.api.model.Frame;
+import com.github.dockerjava.api.exception.NotFoundException;
 
 import online.lucianmusat.Parastas.utils.DockerContainer;
 
@@ -60,7 +62,16 @@ public class DockerService {
     public String getContainerName(@Nonnull final String containerId) {
         logger.debug("Getting container name for container " + containerId);
         try {
-            return dockerClient.inspectContainerCmd(containerId).exec().getName().substring(1);
+            InspectContainerResponse response = dockerClient.inspectContainerCmd(containerId).exec();
+            if (response != null && response.getName() != null) {
+                return response.getName().substring(1);
+            } else {
+                logger.error("Container " + containerId + " does not exist or has no name.");
+                return "";
+            }
+        } catch (NotFoundException e) {
+            logger.error("Container " + containerId + " not found: " + e.getMessage());
+            return "";
         } catch (Exception e) {
             logger.error("Error while getting container name for container " + containerId + ": " + e.getMessage());
             return "";
