@@ -15,7 +15,7 @@ Like everyone else, I have some applications running in docker containers on my 
 - run ./build_docker.sh
 - docker compose up -d
 - open up localhost:8080 
-- Got to Settings and set up your SMTP credentials
+- Got to Settings and set up your credentials and SMTP settings
 
 If everything is ok you should see the list of running docker containers. Check the ones you want to monitor
 
@@ -28,5 +28,5 @@ If everything is ok you should see the list of running docker containers. Check 
  - [X] Add ability to click on container and see latest logs.
  - [X] Add error page
  - [X] Add auth
- - [ ] Add tests
+ - [X] Add tests
  - [ ] Add browser side rendering

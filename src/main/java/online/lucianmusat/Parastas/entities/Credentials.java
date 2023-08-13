@@ -1,16 +1,12 @@
 package online.lucianmusat.Parastas.entities;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Credentials {
 
-    @Value("${PARASTAS_USERNAME}")
-    private String username;
-
-    @Value("${PARASTAS_PASSWORD}")
-    private String password;
+    private String username = "admin";
+    private String password = "admin";
 
     public String getUsername() {
         return username;
@@ -18,6 +14,14 @@ public class Credentials {
 
     public String getPassword() {
         return password;
+    }
+
+    public void setUsername(String newUsername) {
+        username = newUsername;
+    }
+
+    public void setPassword(String newPassword) {
+        password = newPassword;
     }
 }
 

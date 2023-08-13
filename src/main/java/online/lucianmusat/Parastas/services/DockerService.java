@@ -30,7 +30,7 @@ public class DockerService {
     private static DockerClient dockerClient;
 
     @Autowired
-    DockerService(DockerClient dockerClient) {
+    public DockerService(DockerClient dockerClient) {
         DockerService.dockerClient = dockerClient;
     }
 
