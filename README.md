@@ -28,5 +28,6 @@ If everything is ok you should see the list of running docker containers. Check 
  - [X] Add ability to click on container and see latest logs.
  - [X] Add error page
  - [X] Add auth
+ - [ ] Update credentials without restart
  - [ ] Add tests (in progress)
  - [ ] Add browser side rendering
