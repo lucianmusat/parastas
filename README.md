@@ -28,6 +28,7 @@ If everything is ok you should see the list of running docker containers. Check 
  - [X] Add ability to click on container and see latest logs.
  - [X] Add error page
  - [X] Add auth
- - [ ] List docker containers async, to speed up pageload
+ - [X] List docker containers async, to speed up pageload
+ - [ ] Add loading animation instead of plain old text
  - [ ] Add tests (in progress)
  - [ ] Add browser side rendering

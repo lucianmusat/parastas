@@ -58,7 +58,7 @@ class ParastasApplicationTests {
         when(dockerClient.listContainersCmd()).thenReturn(listContainersCmdMock);
 
         DockerService dockerService = new DockerService(dockerClient);
-        Map<DockerContainer, Boolean> containers = dockerService.ListAllDockerContainers();
+        Map<DockerContainer, Boolean> containers = dockerService.listAllDockerContainers();
 
         assertEquals(2, containers.size());
 
@@ -85,7 +85,7 @@ class ParastasApplicationTests {
         when(dockerClient.listContainersCmd()).thenReturn(listContainersCmdMock);
 
         DockerService dockerService = new DockerService(dockerClient);
-        Map<DockerContainer, Boolean> containers = dockerService.ListAllDockerContainers();
+        Map<DockerContainer, Boolean> containers = dockerService.listAllDockerContainers();
 
         assertEquals(0, containers.size());
     }
@@ -101,7 +101,7 @@ class ParastasApplicationTests {
         when(dockerClient.listContainersCmd()).thenReturn(listContainersCmdMock);
 
         DockerService dockerService = new DockerService(dockerClient);
-        Map<DockerContainer, Boolean> containers = dockerService.ListAllDockerContainers();
+        Map<DockerContainer, Boolean> containers = dockerService.listAllDockerContainers();
 
         assertEquals(2, containers.size());
 

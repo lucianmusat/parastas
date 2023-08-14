@@ -10,43 +10,15 @@
         <div class="logo">
             <a href="/"><img th:src="@{/images/logo.png}" alt="Logo"></a>
         </div>
-        <table class="table">
-            <thead class="thead-dark">
-                <tr>
-                    <th><input type="checkbox" onclick="onToggleAll()" th:checked="${allWatched}"> &nbsp;Monitor</th>
-                    <th></th>
-                    <th>Name</th>
-                    <th>Short ID</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="container : ${containers.entrySet()}">
-                    <td>
-                        <input type="checkbox" th:id="${container.key.id}" th:checked="${selectedContainers.get(container.key.id)}" 
-                            th:attr="onclick='selectClick(\'' + ${container.key.id} + '\');'">
-                    </td>
-                    <td><img th:src="@{/images/container48.png}" alt="Container Icon" width="24" height="24"></td>
-                    <td><a th:href="@{/container/{id}/logs/15(id=${container.key.id})}" th:text="${container.key.name}"></a></td>
-                    <td th:text="${container.key.shortID}"></td>
-                    <td>
-                        <img th:src="${container.value ? '/images/green_tickbox.png' : '/images/red_crossmark.png'}"
-                             alt="Status Icon" class="status-icon"
-                             th:title="${container.value ? 'Container is up' : 'Container is down'}"
-                             th:id="'status_icon_' + ${container.key.id}">
-                    </td>
-                    <td><button th:attr="onclick='toggleStatus(\'' + ${container.key.id} + '\');'" class="btn btn-primary" 
-                        th:text="${container.value ? 'Stop' : 'Start' }" th:id="'action_button_' + ${container.key.id}">Start/Stop</button></td>
-                </tr>
-            </tbody>
-        </table>
+        <div th:include="~{fragments/container-list :: container-list}">
+            Loading...
+        </div>
         <a href="/settings" class="settings-link">
             <img th:src="@{/images/settings64.png}" alt="Settings">
         </a>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
@@ -97,6 +69,17 @@
                 setInterval(() => updateContainerStatus(id), 5000); // Poll every 5 seconds
             });
         }
+
+        function updateContainerList() {
+            $.get("/containers", function(data) {
+                $("#container-list").html(data);
+            });
+        }
+
+        // Call updateContainerList when the page is loaded
+        $(document).ready(function() {
+            updateContainerList();
+        });
 
         // Start polling on page load
         startPolling();

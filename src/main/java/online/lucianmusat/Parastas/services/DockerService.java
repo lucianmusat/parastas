@@ -36,7 +36,7 @@ public class DockerService {
         DockerService.dockerClient = dockerClient;
     }
 
-    public Map<DockerContainer, Boolean> ListAllDockerContainers() {
+    public Map<DockerContainer, Boolean> listAllDockerContainers() {
         logger.debug("Listing all containers");
         Map<DockerContainer, Boolean> containers = new HashMap<>();
         try {

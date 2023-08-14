@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.ui.Model;
 
 import online.lucianmusat.Parastas.entities.SmtpSettings;
@@ -19,6 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -67,14 +70,27 @@ public class MainController {
     }
 
     @GetMapping("/")
-    public String index(Model model) {
-        containers = dockerService.ListAllDockerContainers();
-        containers.entrySet().removeIf(entry -> entry.getKey().name().contains("parastas"));
-        cleanWatchedContainers();
-        updateWatchedContainers();
-        updateExecutorSettings();
-        updateModels(model);
-        return "index";
+    public DeferredResult<String> index(Model model) {
+        DeferredResult<String> deferredResult = new DeferredResult<>();
+
+        // Sometimes listAllDockerContainers takes a while and it will block the rendering of the main page until it's done,
+        // so let's do it in a separate thread and return the main page immediately. We can update the main page
+        // once we get the results back.
+        CompletableFuture<Map<DockerContainer, Boolean>> future = CompletableFuture.supplyAsync(() -> {
+            return dockerService.listAllDockerContainers();
+        });
+
+        future.thenAccept(containers -> {
+            MainController.this.containers = containers;
+            containers.entrySet().removeIf(entry -> entry.getKey().name().contains("parastas"));
+            cleanWatchedContainers();
+            updateWatchedContainers();
+            updateExecutorSettings();
+            updateModels(model);
+            deferredResult.setResult("index");
+        });
+
+        return deferredResult;
     }
 
     private void updateModels(Model model) {
@@ -225,6 +241,17 @@ public class MainController {
         }
         model.addAttribute("containerLogs", dockerService.getContainerLogs(id, lines));
         return "logs";
+    }
+
+    @GetMapping("/containers")
+    @ResponseBody
+    public String getContainers(Model model) {
+        containers.entrySet().removeIf(entry -> entry.getKey().name().contains("parastas"));
+        cleanWatchedContainers();
+        updateWatchedContainers();
+        updateExecutorSettings();
+        updateModels(model);
+        return "fragments/container-list";
     }
 
 }
