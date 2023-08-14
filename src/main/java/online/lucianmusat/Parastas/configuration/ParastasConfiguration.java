@@ -2,6 +2,7 @@ package online.lucianmusat.Parastas.configuration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -97,15 +99,22 @@ public class ParastasConfiguration {
     @EnableWebSecurity
     public class AuthorizeUrlsSecurityConfig {
 
+        @Autowired
+        private CredentialsService credentialsService;
+
         @Bean
-        public UserDetailsService userDetailsService(CredentialsService credentialsService) {
-            Credentials credentials = credentialsService.getCredentials();
-            UserDetails admin = User.builder()
-                .username(credentials.getUsername())
-                .password(credentials.getPassword())
-                .roles("ADMIN", "USER")
-                .build();
-            return new InMemoryUserDetailsManager(admin);
+        public UserDetailsService userDetailsService() {
+            return username -> {
+                Credentials credentials = credentialsService.getCredentials();
+                if (credentials == null) {
+                    throw new UsernameNotFoundException("User not found");
+                }
+                return User.builder()
+                    .username(credentials.getUsername())
+                    .password(credentials.getPassword())
+                    .roles("ADMIN", "USER")
+                    .build();
+            };
         }
 
         @Bean
@@ -113,5 +122,6 @@ public class ParastasConfiguration {
             return new BCryptPasswordEncoder();
         }
     }
+
 
 }

@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import jakarta.annotation.PostConstruct;
 import online.lucianmusat.Parastas.entities.Credentials;
@@ -15,11 +16,10 @@ public class CredentialsService {
 
     private static final Logger logger = LogManager.getLogger(CredentialsService.class);
 
-    @Autowired
-    private CredentialsRepository credentialsRepository;
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private CredentialsRepository credentialsRepository;
 
     public Credentials saveOrUpdateCredentials(Credentials credentials) {
         credentials.setPassword(passwordEncoder.encode(credentials.getPassword()));
