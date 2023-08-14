@@ -38,30 +38,33 @@ public class SettingsController {
 
     @RequestMapping("/settings")
     public String settingsPage(Model model) {
+        initModels(model);
+        return "settings";
+    }
+
+    @PostMapping("/save-settings")
+    public String saveSettings(@Valid SettingsForm settingsForm, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            logger.error("Could not save settings: " + bindingResult.toString());
+            return "redirect:/settings";
+        }
+        updateSMTPSettings(settingsForm);
+        updateStateSettings(settingsForm);
+        initModels(model);
+        model.addAttribute("passwordMatch", updateCredentials(settingsForm));
+        return "settings";
+    }
+
+    private void initModels(Model model) {
         SmtpSettings smtpSettings = smtpSettingsRepository.findById(1L).orElse(new SmtpSettings());
         StateSettings stateSettings = stateSettingsRepository.findById(1L).orElse(new StateSettings());
         Credentials credentials = credentialsRepository.findById(1L).orElse(new Credentials());
         model.addAttribute("smtpSettings", smtpSettings);
         model.addAttribute("stateSettings", stateSettings);
         model.addAttribute("credentials", credentials);
-        return "settings";
+        model.addAttribute("passwordMatch", true);
     }
 
-    @PostMapping("/save-settings")
-    public String saveSettings(@Valid SettingsForm settingsForm, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            logger.error("Could not save settings: " + bindingResult.toString());
-            return "redirect:/settings";
-        }
-
-        updateSMTPSettings(settingsForm);
-        updateStateSettings(settingsForm);
-        updateCredentials(settingsForm);
-
-        return "redirect:/settings";
-    }
-
-    // TODO: update the frontend when this fails
     private boolean updateCredentials(final SettingsForm settingsForm) {
         Credentials credentials = credentialsRepository.findById(1L).orElse(new Credentials());
         if (settingsForm.getOldPassword().isEmpty()) {
