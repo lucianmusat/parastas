@@ -29,7 +29,7 @@ If everything is ok you should see the list of running docker containers. Check 
  - [X] Add error page
  - [X] Add auth
  - [X] List docker containers async, to speed up pageload
- - [ ] Add loading animation instead of plain old text
+ - [X] Add loading animation instead of plain old text
  - [ ] Add favicon
  - [ ] Add tests (in progress)
  - [ ] Add browser side rendering

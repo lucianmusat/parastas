@@ -9,6 +9,13 @@ body {
     margin-bottom: 50px;
 }
 
+.loading {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 50px;
+}
+
 .settings-link {
     position: absolute;
     top: 20px;

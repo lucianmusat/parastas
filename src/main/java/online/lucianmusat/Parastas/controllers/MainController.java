@@ -90,6 +90,7 @@ public class MainController {
             deferredResult.setResult("index");
         });
 
+        deferredResult.setResult("index");
         return deferredResult;
     }
 
@@ -245,13 +246,13 @@ public class MainController {
 
     @GetMapping("/containers")
     @ResponseBody
-    public String getContainers(Model model) {
+    public Map<String, Map<String, Boolean>> getContainers(Model model) {
         containers.entrySet().removeIf(entry -> entry.getKey().name().contains("parastas"));
-        cleanWatchedContainers();
-        updateWatchedContainers();
-        updateExecutorSettings();
-        updateModels(model);
-        return "fragments/container-list";
+        return containers.entrySet().stream()
+            .collect(Collectors.toMap(
+                entry -> entry.getKey().name(),
+                entry -> (Map<String, Boolean>) Map.of(entry.getKey().shortID(), entry.getValue())
+            ));
     }
 
 }

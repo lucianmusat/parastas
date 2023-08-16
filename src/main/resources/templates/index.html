@@ -10,9 +10,26 @@
         <div class="logo">
             <a href="/"><img th:src="@{/images/logo.png}" alt="Logo"></a>
         </div>
-        <div th:include="~{fragments/container-list :: container-list}">
-            Loading...
+
+        <div class="container-list">
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th><input type="checkbox" onclick="onToggleAll()" th:checked="${allWatched}"> &nbsp;Monitor</th>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Short ID</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="table-id">
+                    <!-- This is where the containers are filled in -->
+                </tbody>
+            </table>
+            <div class="loading"><img th:src="@{/images/loading.gif}" alt="Loading" id="loading"></div>
         </div>
+
         <a href="/settings" class="settings-link">
             <img th:src="@{/images/settings64.png}" alt="Settings">
         </a>
@@ -22,6 +39,41 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
+        var containerFetchPollingInterval;
+
+        function updateContainerList() {
+            $.get("/containers", function(data) {
+                updateContainerListUI(data);
+            });
+        }
+
+        function updateContainerListUI(containerData) {
+            if (Object.keys(containerData).length > 0) {
+                $("#loading").hide();
+                clearInterval(containerFetchPollingInterval);
+            }
+            var tableBody = $(".container-list table tbody");
+            tableBody.empty();
+
+            for (var containerName in containerData) {
+                var containerInfo = containerData[containerName];
+                var shortID = Object.keys(containerInfo)[0];
+                var containerStatus = containerInfo[shortID];
+                var row = $("<tr></tr>");
+                row.append("<td><input type='checkbox' id='" + shortID + "'></td>");
+                row.append("<td><img src='/images/container48.png' alt='Container Icon' width='24' height='24'></td>");
+                row.append("<td><a href='/container/" + shortID + "/logs/15'>" + containerName + "</a></td>");
+                row.append("<td>" + shortID + "</td>");
+                row.append("<td><img src='" + (containerStatus ? '/images/green_tickbox.png' : '/images/red_crossmark.png') + "' " +
+                        "alt='Status Icon' class='status-icon' title='" + (containerStatus ? 'Container is up' : 'Container is down') + "' " +
+                        "id='status_icon_" + shortID + "'></td>");
+                row.append("<td><button onclick='toggleStatus(\"" + shortID + "\")' class='btn btn-primary' id='action_button_" + shortID + "'>" +
+                        (containerStatus ? 'Stop' : 'Start') + "</button></td>");
+
+                tableBody.append(row);
+            }
+        }
+
         function selectClick(container) {
             window.location.href = "/container/" + container + "/toggleSelect";
         }
@@ -35,54 +87,42 @@
         }
 
         function updateContainerStatus(containerId) {
-        fetch(`/container/${containerId}/status`)
-            .then(response => response.text())
-            .then(status => {
-                const statusIcon = document.getElementById(`status_icon_${containerId}`);
-                const actionButton = document.getElementById(`action_button_${containerId}`);
+            fetch(`/container/${containerId}/status`)
+                .then(response => response.text())
+                .then(status => {
+                    const statusIcon = document.getElementById(`status_icon_${containerId}`);
+                    const actionButton = document.getElementById(`action_button_${containerId}`);
 
-                if (status === "true") {
-                    statusIcon.src = "/images/green_tickbox.png";
-                    statusIcon.title = "Container is up";
-                    actionButton.innerText = "Stop";
-                } else {
-                    statusIcon.src = "/images/red_crossmark.png";
-                    statusIcon.title = "Container is down";
-                    actionButton.innerText = "Start";
-                }
-            })
-            .catch(error => {
-                console.error(`Error updating container ${containerId} status: ${error}`);
-            });
-    }
+                    if (status === "true") {
+                        statusIcon.src = "/images/green_tickbox.png";
+                        statusIcon.title = "Container is up";
+                        actionButton.innerText = "Stop";
+                    } else {
+                        statusIcon.src = "/images/red_crossmark.png";
+                        statusIcon.title = "Container is down";
+                        actionButton.innerText = "Start";
+                    }
+                })
+                .catch(error => {
+                    console.error(`Error updating container ${containerId} status: ${error}`);
+                });
+        }
 
-        // Function to start polling container status for all containers
-        function startPolling() {
+        function updateContainersStatus() {
             const containerIds = [];
-             // Loop through each container row and extract the container ID
             document.querySelectorAll("[id^='status_icon_']").forEach(element => {
                 const containerId = element.getAttribute("id").replace("status_icon_", "");
                 containerIds.push(containerId);
             });
             containerIds.forEach(id => {
                 updateContainerStatus(id);
-                setInterval(() => updateContainerStatus(id), 5000); // Poll every 5 seconds
             });
         }
 
-        function updateContainerList() {
-            $.get("/containers", function(data) {
-                $("#container-list").html(data);
-            });
-        }
-
-        // Call updateContainerList when the page is loaded
         $(document).ready(function() {
-            updateContainerList();
+            setInterval(updateContainersStatus, 5000); // Poll every 5 seconds for container status updates
+            containerFetchPollingInterval = setInterval(updateContainerList, 500); // Poll every half second until we get data
         });
-
-        // Start polling on page load
-        startPolling();
     </script>
 </body>
 </html>
