@@ -118,7 +118,7 @@ public class SettingsController {
             smtpSettings.setSmtpUsername(settingsForm.getSmtpUsername().trim());
         }
         if (!settingsForm.getSmtpPassword().isEmpty()) {
-            logger.info("Saving SMTP Password: " + settingsForm.getSmtpPassword());
+            logger.info("Saving SMTP Password");
             smtpSettings.setSmtpPassword(settingsForm.getSmtpPassword().trim());
         }
         if (!settingsForm.getRecipientEmailList().isEmpty()) {
