@@ -69,6 +69,9 @@ public class SettingsController {
         Credentials credentials = credentialsRepository.findById(1L).orElse(new Credentials());
         if (settingsForm.getOldPassword().isEmpty()) {
             logger.debug("Old password is empty, disregarding credentials update");
+            if (settingsForm.getNewPassword().isEmpty() || settingsForm.getUsername() == credentials.getUsername()) {
+                return true;
+            }
             return false;
         } else {
             if (!passwordEncoder.matches(settingsForm.getOldPassword(), credentials.getPassword())) {
