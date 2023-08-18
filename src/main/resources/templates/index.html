@@ -15,7 +15,7 @@
             <table class="table">
                 <thead class="thead-dark">
                     <tr>
-                        <th><input type="checkbox" onclick="onToggleAll()" th:checked="${allWatched}"> &nbsp;Monitor</th>
+                        <th><input type="checkbox" onclick="onToggleAll()" th:checked="${allWatched}" id="allWatched"> &nbsp;Monitor</th>
                         <th></th>
                         <th>Name</th>
                         <th>Short ID</th>
@@ -48,19 +48,26 @@
         }
 
         function updateContainerListUI(containerData) {
-            if (Object.keys(containerData).length > 0) {
-                $("#loading").hide();
-                clearInterval(containerFetchPollingInterval);
+            if (Object.keys(containerData).length <= 0) {
+                return;
             }
+            $("#loading").hide();
+            clearInterval(containerFetchPollingInterval);
+            const allWatchedCheckbox = $("#allWatched");
             var tableBody = $(".container-list table tbody");
             tableBody.empty();
+            let allContainersWatched = true;
 
-            for (var containerName in containerData) {
-                var containerInfo = containerData[containerName];
-                var shortID = Object.keys(containerInfo)[0];
-                var containerStatus = containerInfo[shortID];
+            for (const container of containerData) {
+                const containerName = container.name;
+                const shortID = container.id;
+                const containerStatus = container.status === "true";
+                const watched = container.watched === "true";
+                if (!watched) {
+                    allContainersWatched = false;
+                }
                 var row = $("<tr></tr>");
-                row.append("<td><input type='checkbox' id='" + shortID + "'></td>");
+                row.append("<td><input type='checkbox' id='" + shortID + "' onclick='selectClick(\"" + shortID + "\");'" + (watched ? 'checked' : '') + "></td>");
                 row.append("<td><img src='/images/container48.png' alt='Container Icon' width='24' height='24'></td>");
                 row.append("<td><a href='/container/" + shortID + "/logs/15'>" + containerName + "</a></td>");
                 row.append("<td>" + shortID + "</td>");
@@ -72,6 +79,7 @@
 
                 tableBody.append(row);
             }
+            allWatchedCheckbox.prop("checked", allContainersWatched);
         }
 
         function selectClick(container) {

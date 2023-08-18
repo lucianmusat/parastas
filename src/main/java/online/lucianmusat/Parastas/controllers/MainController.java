@@ -21,6 +21,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -133,9 +135,22 @@ public class MainController {
 
     @GetMapping("/container/{id}/toggleSelect")
     public String toggleContainer(@PathVariable String id, Model model) {
+        if (id.length() == 12) {
+            id = getFullID(id);
+        }
         logger.info("Selected container: {}", id);
         watchedContainers.put(id, !watchedContainers.getOrDefault(id, false));
         return "redirect:/";
+    }
+
+    private String getFullID(final String shortID) {
+        String id = shortID;
+        id = containers.keySet().stream()
+                .filter(container -> container.shortID().equals(shortID))
+                .findFirst()
+                .map(DockerContainer::id)
+                .orElse(id);
+        return id;
     }
 
     private void updateContainerStatus(String containerId, Boolean newStatus) {
@@ -246,13 +261,17 @@ public class MainController {
 
     @GetMapping("/containers")
     @ResponseBody
-    public Map<String, Map<String, Boolean>> getContainers(Model model) {
+    public List<Map<String, Object>> getContainers(Model model) {
         containers.entrySet().removeIf(entry -> entry.getKey().name().contains("parastas"));
         return containers.entrySet().stream()
-            .collect(Collectors.toMap(
-                entry -> entry.getKey().name(),
-                entry -> (Map<String, Boolean>) Map.of(entry.getKey().shortID(), entry.getValue())
-            ));
+                .map(entry -> {
+                    Map<String, Object> containerMap = new LinkedHashMap<>();
+                    containerMap.put("name", entry.getKey().name());
+                    containerMap.put("id", entry.getKey().shortID());
+                    containerMap.put("status", entry.getValue().toString());
+                    containerMap.put("watched", watchedContainers.getOrDefault(entry.getKey().id(), false).toString());
+                    return containerMap;
+                }).collect(Collectors.toList());
     }
 
 }
