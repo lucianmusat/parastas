@@ -12,7 +12,9 @@
         <a href="/" class="backarrow">
             <img src="images/left-arrow.png" alt="Back to main page">
         </a>
-
+        <div id="success-message" class="alert alert-success" th:if="${saveSuccess}">
+            Settings saved successfully.
+        </div>
         <form class="needs-validation" th:action="@{/save-settings}" method="post" novalidate>
             <div class="form-group">
                 <label for="smtpHost">SMTP Host:</label>

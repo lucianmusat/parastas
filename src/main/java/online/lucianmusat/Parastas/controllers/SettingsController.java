@@ -52,6 +52,7 @@ public class SettingsController {
         updateStateSettings(settingsForm);
         initModels(model);
         model.addAttribute("passwordMatch", updateCredentials(settingsForm));
+        model.addAttribute("saveSuccess", true);
         return "settings";
     }
 
@@ -63,6 +64,7 @@ public class SettingsController {
         model.addAttribute("stateSettings", stateSettings);
         model.addAttribute("credentials", credentials);
         model.addAttribute("passwordMatch", true);
+        model.addAttribute("saveSuccess", false);
     }
 
     private boolean updateCredentials(final SettingsForm settingsForm) {
