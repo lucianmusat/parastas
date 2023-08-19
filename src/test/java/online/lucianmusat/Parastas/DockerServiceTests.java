@@ -121,14 +121,19 @@ class DockerServiceTests {
     }
 
     @Test
-    public void testIsRunning() {
+    public void testIsNotRunning() {
         DockerService dockerService = new DockerService(dockerClient);
         InspectContainerCmd inspectContainerCmdMock = mock(InspectContainerCmd.class);
         when(dockerClient.inspectContainerCmd("container1")).thenReturn(inspectContainerCmdMock);
         when(inspectContainerCmdMock.exec()).thenReturn(null);
         when(dockerClient.inspectContainerCmd("container1").exec()).thenReturn(null);
         assertEquals(false, dockerService.isRunning("container1"));
+    }
 
+    @Test
+    public void testIsRunning() {
+        DockerService dockerService = new DockerService(dockerClient);
+        InspectContainerCmd inspectContainerCmdMock = mock(InspectContainerCmd.class);
         ContainerState containerStateMock = mock(ContainerState.class);
         when(containerStateMock.getRunning()).thenReturn(true);
         InspectContainerResponse inspectContainerResponseMock = mock(InspectContainerResponse.class);
@@ -153,16 +158,20 @@ class DockerServiceTests {
     }
 
     @Test
-    public void testToggleStatus() {
+    public void testToggleOn() {
         DockerService dockerService = new DockerService(dockerClient);
-
         InspectContainerCmd inspectContainerCmdMock = mock(InspectContainerCmd.class);
         when(dockerClient.inspectContainerCmd("container1")).thenReturn(inspectContainerCmdMock);
         when(inspectContainerCmdMock.exec()).thenReturn(null);
         when(dockerClient.inspectContainerCmd("container1").exec()).thenReturn(null);
         dockerService.toggleContainerStatus("container1");
         verify(dockerClient).startContainerCmd("container1");
+    }
 
+    @Test
+    public void testToggleOff() {
+        DockerService dockerService = new DockerService(dockerClient);
+        InspectContainerCmd inspectContainerCmdMock = mock(InspectContainerCmd.class);
         ContainerState containerStateMock = mock(ContainerState.class);
         when(containerStateMock.getRunning()).thenReturn(true);
         InspectContainerResponse inspectContainerResponseMock = mock(InspectContainerResponse.class);
