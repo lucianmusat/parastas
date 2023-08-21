@@ -102,7 +102,7 @@ public class MainController {
         model.addAttribute("allWatched", !watchedContainers.containsValue(false));
     }
 
-    public void cleanWatchedContainers() {
+    private void cleanWatchedContainers() {
         watchedContainers.keySet()
                 .removeIf(containerId -> containers.keySet().stream()
                         .noneMatch(container -> container.id().equals(containerId)));
