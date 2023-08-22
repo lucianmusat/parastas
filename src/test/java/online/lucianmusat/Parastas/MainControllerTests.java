@@ -4,6 +4,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
@@ -75,6 +76,24 @@ public class MainControllerTests {
             assertEquals(1, model.getAttribute("selectedContainers"));
             assertEquals(false, model.getAttribute("allWatched"));
         });
+    }
+
+    @Test
+    public void testToggleContainer() throws Exception {
+        // Call index to populate the model
+        Map<DockerContainer, Boolean> mockContainers = new HashMap<>();
+        mockContainers.put(new DockerContainer("containerId1", "image1"), false);
+        mockContainers.put(new DockerContainer("containerId2", "image2"), false);
+        when(dockerService.listAllDockerContainers()).thenReturn(mockContainers);
+        mainController.index(new ConcurrentModel());
+
+        mockMvc.perform(get("/container/containerId1/toggleSelect"))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/"));
+
+        mockMvc.perform(get("/containers"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[?(@.id == 'containerId1')].watched").value("true"));
     }
 
 }
