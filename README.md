@@ -24,12 +24,4 @@ If everything is ok you should see the list of running docker containers. Check 
 
 ### TODO:
 
- - [X] Add latest logs in the email notification.
- - [X] Add ability to click on container and see latest logs.
- - [X] Add error page
- - [X] Add auth
- - [X] List docker containers async, to speed up pageload
- - [X] Add loading animation instead of plain old text
- - [X] Add favicon
  - [ ] Add tests (in progress)
- - [ ] Add browser side rendering
