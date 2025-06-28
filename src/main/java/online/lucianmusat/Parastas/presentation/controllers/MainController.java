@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.ui.Model;
 
-import online.lucianmusat.Parastas.domain.SmtpSettings;
+import online.lucianmusat.Parastas.domain.entities.SmtpSettings;
 import online.lucianmusat.Parastas.domain.repositories.SmtpSettingsRepository;
 import online.lucianmusat.Parastas.domain.repositories.StateSettingsRepository;
 import online.lucianmusat.Parastas.application.services.DockerService;
 import online.lucianmusat.Parastas.application.services.EmailService;
 import online.lucianmusat.Parastas.infrastructure.DockerContainer;
-import online.lucianmusat.Parastas.domain.StateSettings;
+import online.lucianmusat.Parastas.domain.entities.StateSettings;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

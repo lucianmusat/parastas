@@ -11,12 +11,12 @@ import org.springframework.ui.Model;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import online.lucianmusat.Parastas.domain.SmtpSettings;
+import online.lucianmusat.Parastas.domain.entities.SmtpSettings;
 import online.lucianmusat.Parastas.domain.repositories.SmtpSettingsRepository;
 import online.lucianmusat.Parastas.domain.repositories.StateSettingsRepository;
-import online.lucianmusat.Parastas.domain.Credentials;
+import online.lucianmusat.Parastas.domain.entities.Credentials;
 import online.lucianmusat.Parastas.domain.repositories.CredentialsRepository;
-import online.lucianmusat.Parastas.domain.StateSettings;
+import online.lucianmusat.Parastas.domain.entities.StateSettings;
 import online.lucianmusat.Parastas.application.SettingsFormDTO;
 
 import jakarta.validation.Valid;

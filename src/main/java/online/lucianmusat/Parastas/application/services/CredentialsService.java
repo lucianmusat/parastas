@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import jakarta.annotation.PostConstruct;
-import online.lucianmusat.Parastas.domain.Credentials;
+import online.lucianmusat.Parastas.domain.entities.Credentials;
 import online.lucianmusat.Parastas.domain.repositories.CredentialsRepository;
 
 @Service

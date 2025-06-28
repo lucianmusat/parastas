@@ -23,10 +23,10 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 
-import online.lucianmusat.Parastas.domain.SmtpSettings;
+import online.lucianmusat.Parastas.domain.entities.SmtpSettings;
 import online.lucianmusat.Parastas.domain.repositories.SmtpSettingsRepository;
 import online.lucianmusat.Parastas.application.services.CredentialsService;
-import online.lucianmusat.Parastas.domain.Credentials;
+import online.lucianmusat.Parastas.domain.entities.Credentials;
 
 import java.util.List;
 import java.util.Properties;

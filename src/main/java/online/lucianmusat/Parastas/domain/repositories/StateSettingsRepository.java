@@ -1,6 +1,6 @@
 package online.lucianmusat.Parastas.domain.repositories;
 
-import online.lucianmusat.Parastas.domain.StateSettings;
+import online.lucianmusat.Parastas.domain.entities.StateSettings;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
