@@ -4,7 +4,6 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
@@ -15,12 +14,12 @@ import org.mockito.MockitoAnnotations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import online.lucianmusat.Parastas.controllers.MainController;
+import online.lucianmusat.Parastas.presentation.controllers.MainController;
 
-import online.lucianmusat.Parastas.services.DockerService;
-import online.lucianmusat.Parastas.services.EmailService;
-import online.lucianmusat.Parastas.entities.StateSettingsRepository;
-import online.lucianmusat.Parastas.utils.DockerContainer;
+import online.lucianmusat.Parastas.application.services.DockerService;
+import online.lucianmusat.Parastas.application.services.EmailService;
+import online.lucianmusat.Parastas.domain.repositories.StateSettingsRepository;
+import online.lucianmusat.Parastas.infrastructure.DockerContainer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -1,4 +1,4 @@
-package online.lucianmusat.Parastas.services;
+package online.lucianmusat.Parastas.application.services;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import jakarta.annotation.PostConstruct;
-import online.lucianmusat.Parastas.entities.Credentials;
-import online.lucianmusat.Parastas.entities.CredentialsRepository;
+import online.lucianmusat.Parastas.domain.Credentials;
+import online.lucianmusat.Parastas.domain.repositories.CredentialsRepository;
 
 @Service
 public class CredentialsService {

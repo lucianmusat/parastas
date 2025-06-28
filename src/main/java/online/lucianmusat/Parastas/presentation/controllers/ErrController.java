@@ -1,4 +1,4 @@
-package online.lucianmusat.Parastas.controllers;
+package online.lucianmusat.Parastas.presentation.controllers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

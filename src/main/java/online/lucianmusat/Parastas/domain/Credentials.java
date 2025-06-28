@@ -1,4 +1,4 @@
-package online.lucianmusat.Parastas.entities;
+package online.lucianmusat.Parastas.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -7,7 +7,7 @@ import jakarta.persistence.Id;
 public class Credentials {
 
     @Id
-    private Long id = 1L;
+    private final Long id = 1L;
     private String username;
     private String password;
 

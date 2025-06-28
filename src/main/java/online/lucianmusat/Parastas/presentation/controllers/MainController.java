@@ -1,4 +1,4 @@
-package online.lucianmusat.Parastas.controllers;
+package online.lucianmusat.Parastas.presentation.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.ui.Model;
 
-import online.lucianmusat.Parastas.entities.SmtpSettings;
-import online.lucianmusat.Parastas.entities.SmtpSettingsRepository;
-import online.lucianmusat.Parastas.entities.StateSettingsRepository;
-import online.lucianmusat.Parastas.services.DockerService;
-import online.lucianmusat.Parastas.services.EmailService;
-import online.lucianmusat.Parastas.utils.DockerContainer;
-import online.lucianmusat.Parastas.entities.StateSettings;
+import online.lucianmusat.Parastas.domain.SmtpSettings;
+import online.lucianmusat.Parastas.domain.repositories.SmtpSettingsRepository;
+import online.lucianmusat.Parastas.domain.repositories.StateSettingsRepository;
+import online.lucianmusat.Parastas.application.services.DockerService;
+import online.lucianmusat.Parastas.application.services.EmailService;
+import online.lucianmusat.Parastas.infrastructure.DockerContainer;
+import online.lucianmusat.Parastas.domain.StateSettings;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,12 +47,12 @@ public class MainController {
 
     private final EmailService emailService;
     private final DockerService dockerService;
-    private StateSettingsRepository stateSettingsRepository;
+    private final StateSettingsRepository stateSettingsRepository;
     private final Map<String, Boolean> watchedContainers = new ConcurrentHashMap<>();
     private Map<DockerContainer, Boolean>  containers = new ConcurrentHashMap<>();
     private ScheduledExecutorService executor;
-    private AtomicInteger refreshPeriodSeconds = new AtomicInteger(60);
-    private StateSettings stateSettings;
+    private final AtomicInteger refreshPeriodSeconds = new AtomicInteger(60);
+    private final StateSettings stateSettings;
     private final int nrThreads = 1;
 
 
@@ -75,12 +75,10 @@ public class MainController {
     public DeferredResult<String> index(Model model) {
         DeferredResult<String> deferredResult = new DeferredResult<>();
 
-        // Sometimes listAllDockerContainers takes a while and it will block the rendering of the main page until it's done,
+        // Sometimes listAllDockerContainers takes a while, and it will block the rendering of the main page until it's done,
         // so let's do it in a separate thread and return the main page immediately. We can update the main page
         // once we get the results back.
-        CompletableFuture<Map<DockerContainer, Boolean>> future = CompletableFuture.supplyAsync(() -> {
-            return dockerService.listAllDockerContainers();
-        });
+        CompletableFuture<Map<DockerContainer, Boolean>> future = CompletableFuture.supplyAsync(dockerService::listAllDockerContainers);
 
         future.thenAccept(containers -> {
             MainController.this.containers = containers;
@@ -195,7 +193,7 @@ public class MainController {
                     sendNotification(dockerService.getContainerName(containerId), containerId, false);
                 }
             } catch (Exception e) {
-                logger.error("Error checking containers: {}", e);
+                logger.error("Error checking containers", e);
             }
         }
     };
@@ -218,7 +216,7 @@ public class MainController {
         String body = "Container " + containerName + " (" + containerId.substring(0, 12) + ") is";
         body += isDown ? " down!" : " back up!";
         body += "\n\n";
-        body += dockerService.getContainerLogs(containerId, 10).stream().collect(Collectors.joining());
+        body += String.join("", dockerService.getContainerLogs(containerId, 10));
         emailService.sendEmail(smtpSettings.getRecipients(), subject, body);
     }
 

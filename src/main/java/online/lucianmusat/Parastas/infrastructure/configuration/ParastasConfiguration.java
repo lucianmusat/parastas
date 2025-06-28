@@ -1,4 +1,4 @@
-package online.lucianmusat.Parastas.configuration;
+package online.lucianmusat.Parastas.infrastructure.configuration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,11 +23,12 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 
-import online.lucianmusat.Parastas.entities.SmtpSettings;
-import online.lucianmusat.Parastas.entities.SmtpSettingsRepository;
-import online.lucianmusat.Parastas.services.CredentialsService;
-import online.lucianmusat.Parastas.entities.Credentials;
+import online.lucianmusat.Parastas.domain.SmtpSettings;
+import online.lucianmusat.Parastas.domain.repositories.SmtpSettingsRepository;
+import online.lucianmusat.Parastas.application.services.CredentialsService;
+import online.lucianmusat.Parastas.domain.Credentials;
 
+import java.util.List;
 import java.util.Properties;
 
 import com.google.common.base.Strings;
@@ -48,9 +49,8 @@ public class ParastasConfiguration {
                 .sslConfig(config.getSSLConfig())
                 .build();
 
-        DockerClient dockerClient = DockerClientBuilder.getInstance(config)
-                                                       .withDockerHttpClient(httpClient).build();
-        return dockerClient;
+        return DockerClientBuilder.getInstance(config)
+                                   .withDockerHttpClient(httpClient).build();
     }
 
     @Bean
@@ -95,7 +95,9 @@ public class ParastasConfiguration {
 
     @Configuration
     @EnableWebSecurity
-    public class AuthorizeUrlsSecurityConfig {
+    public static class AuthorizeUrlsSecurityConfig {
+
+        private static final List<String> ROLES = List.of("ADMIN", "USER");
 
         @Autowired
         private CredentialsService credentialsService;
@@ -110,7 +112,7 @@ public class ParastasConfiguration {
                 return User.builder()
                     .username(credentials.getUsername())
                     .password(credentials.getPassword())
-                    .roles("ADMIN", "USER")
+                    .roles(String.valueOf(ROLES))
                     .build();
             };
         }

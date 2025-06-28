@@ -1,4 +1,4 @@
-package online.lucianmusat.Parastas.entities;
+package online.lucianmusat.Parastas.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

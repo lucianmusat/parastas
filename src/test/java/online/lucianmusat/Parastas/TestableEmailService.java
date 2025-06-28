@@ -1,6 +1,6 @@
 package online.lucianmusat.Parastas;
 
-import online.lucianmusat.Parastas.services.EmailService;
+import online.lucianmusat.Parastas.application.services.EmailService;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.SimpleMailMessage;
 

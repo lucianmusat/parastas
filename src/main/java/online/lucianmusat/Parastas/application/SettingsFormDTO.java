@@ -1,8 +1,8 @@
-package online.lucianmusat.Parastas.utils;
+package online.lucianmusat.Parastas.application;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class SettingsForm {
+public class SettingsFormDTO {
 
     @NotBlank(message = "SMTP Host cannot be empty")
     private String smtpHost;

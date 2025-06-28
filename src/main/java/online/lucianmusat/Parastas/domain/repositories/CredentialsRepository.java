@@ -1,5 +1,6 @@
-package online.lucianmusat.Parastas.entities;
+package online.lucianmusat.Parastas.domain.repositories;
 
+import online.lucianmusat.Parastas.domain.Credentials;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

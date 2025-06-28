@@ -1,4 +1,4 @@
-package online.lucianmusat.Parastas.services;
+package online.lucianmusat.Parastas.application.services;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.context.ApplicationContext;
 
-import online.lucianmusat.Parastas.controllers.MainController;
+import online.lucianmusat.Parastas.presentation.controllers.MainController;
 
 @Service
 public class EmailService {

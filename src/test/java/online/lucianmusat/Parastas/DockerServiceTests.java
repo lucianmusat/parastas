@@ -15,8 +15,8 @@ import com.github.dockerjava.api.command.ListContainersCmd;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.command.InspectContainerResponse.ContainerState;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import online.lucianmusat.Parastas.services.DockerService;
-import online.lucianmusat.Parastas.utils.DockerContainer;
+import online.lucianmusat.Parastas.application.services.DockerService;
+import online.lucianmusat.Parastas.infrastructure.DockerContainer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

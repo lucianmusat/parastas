@@ -1,4 +1,4 @@
-package online.lucianmusat.Parastas.services;
+package online.lucianmusat.Parastas.application.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,7 +10,7 @@ import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.exception.NotFoundException;
 
-import online.lucianmusat.Parastas.utils.DockerContainer;
+import online.lucianmusat.Parastas.infrastructure.DockerContainer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,9 +44,9 @@ public class DockerService {
                 containers.put(new DockerContainer(container.getId(), container.getImage()), container.getState().equals("running"));
             });
         } catch (Exception e) {
-            logger.error("Error while listing containers: " + e.getMessage());
+            logger.error("Error while listing containers: {}", e.getMessage());
         }
-        logger.debug("Found " + containers.size() + " containers");
+        logger.debug("Found {} containers", containers.size());
         return containers;
     }
 
@@ -60,26 +60,26 @@ public class DockerService {
     }
 
     public String getContainerName(@Nonnull final String containerId) {
-        logger.debug("Getting container name for container " + containerId);
+        logger.debug("Getting container name for container {}", containerId);
         try {
             InspectContainerResponse response = dockerClient.inspectContainerCmd(containerId).exec();
             if (response != null && response.getName() != null) {
                 return response.getName().substring(1);
             } else {
-                logger.error("Container " + containerId + " does not exist or has no name.");
+                logger.error("Container {} does not exist or has no name.", containerId);
                 return "";
             }
         } catch (NotFoundException e) {
-            logger.error("Container " + containerId + " not found: " + e.getMessage());
+            logger.error("Container {} not found: {}", containerId, e.getMessage());
             return "";
         } catch (Exception e) {
-            logger.error("Error while getting container name for container " + containerId + ": " + e.getMessage());
+            logger.error("Error while getting container name for container {}: {}", containerId, e.getMessage());
             return "";
         }
     }
 
     public void toggleContainerStatus(@Nonnull final String containerId) {
-        logger.debug("Toggling container " + containerId);
+        logger.debug("Toggling container {}", containerId);
         try {
             if (isRunning(containerId)) {
                 dockerClient.stopContainerCmd(containerId).exec();
@@ -87,7 +87,7 @@ public class DockerService {
                 dockerClient.startContainerCmd(containerId).exec();
             }
         } catch (Exception e) {
-            logger.error("Error while toggling container " + containerId + ": " + e.getMessage());
+            logger.error("Error while toggling container {}: {}", containerId, e.getMessage());
         }
     }
 
