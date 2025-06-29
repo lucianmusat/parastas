@@ -18,8 +18,12 @@ public class EmailService {
 
     private static final Logger logger = LogManager.getLogger(EmailService.class);
 
+    private final ApplicationContext applicationContext;
+
     @Autowired
-    private ApplicationContext applicationContext;
+    public EmailService(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
     @Async
     public void sendEmail(String recipient, String subject, String body) {
@@ -31,13 +35,13 @@ public class EmailService {
             logger.error("Subject is empty, not sending email");
             return;
         }
-        logger.info("Sending email to " + recipient);
+        logger.info("Sending email to {}", recipient);
         JavaMailSender mailSender = getMailSender();
         SimpleMailMessage message = createMessage(recipient, subject, body);
         try {
             mailSender.send(message);
         } catch (MailException ex) {
-            ex.printStackTrace();
+            logger.error("Could not send email to {}: {}", recipient, ex.getMessage());
         }
     }
 

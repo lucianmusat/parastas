@@ -1,8 +1,11 @@
 package online.lucianmusat.Parastas.infrastructure.configuration;
 
+import online.lucianmusat.Parastas.application.services.EncryptionService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jasypt.encryption.StringEncryptor;
+import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
+import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,12 +13,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.context.annotation.Scope;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.core.userdetails.User;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
@@ -25,13 +22,12 @@ import com.github.dockerjava.transport.DockerHttpClient;
 
 import online.lucianmusat.Parastas.domain.entities.SmtpSettings;
 import online.lucianmusat.Parastas.domain.repositories.SmtpSettingsRepository;
-import online.lucianmusat.Parastas.application.services.CredentialsService;
-import online.lucianmusat.Parastas.domain.entities.Credentials;
 
-import java.util.List;
 import java.util.Properties;
 
 import com.google.common.base.Strings;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 @Configuration
@@ -55,11 +51,11 @@ public class ParastasConfiguration {
 
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE) // Recreate bean for each request because settings might change in the meantime
-    public JavaMailSender javaMailSender(SmtpSettingsRepository smtpSettingsRepository) {
-        SmtpSettings smtpSettings = smtpSettingsRepository.findById(1L).orElseGet(SmtpSettings::new);
+    public JavaMailSender javaMailSender(SmtpSettingsRepository smtpSettingsRepository, EncryptionService encryptionService) {
+        SmtpSettings smtpSettings = smtpSettingsRepository.findTopByOrderByIdAsc().orElseGet(SmtpSettings::new);
 
         String email = smtpSettings.getSmtpUsername();
-        String password = smtpSettings.getSmtpPassword();
+        String password = encryptionService.decrypt(smtpSettings.getSmtpPassword());
         String host = smtpSettings.getSmtpHost();
         int port = smtpSettings.getSmtpPort();
 
@@ -92,36 +88,25 @@ public class ParastasConfiguration {
         return mailSender;
     }
 
-
-    @Configuration
-    @EnableWebSecurity
-    public static class AuthorizeUrlsSecurityConfig {
-
-        private static final List<String> ROLES = List.of("ADMIN", "USER");
-
-        @Autowired
-        private CredentialsService credentialsService;
-
-        @Bean
-        public UserDetailsService userDetailsService() {
-            return username -> {
-                Credentials credentials = credentialsService.getCredentials();
-                if (credentials == null) {
-                    throw new UsernameNotFoundException("User not found");
-                }
-                return User.builder()
-                    .username(credentials.getUsername())
-                    .password(credentials.getPassword())
-                    .roles(String.valueOf(ROLES))
-                    .build();
-            };
-        }
-
-        @Bean
-        public PasswordEncoder passwordEncoder() {
-            return new BCryptPasswordEncoder();
-        }
+    @Bean
+    public StringEncryptor stringEncryptor() {
+        PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
+        SimpleStringPBEConfig config = new SimpleStringPBEConfig();
+        config.setPassword("super-secret-key"); // TODO: Use a secure, environment-specific key, env-var
+        config.setAlgorithm("PBEWithMD5AndDES");
+        config.setKeyObtentionIterations("1000");
+        config.setPoolSize("1");
+        config.setProviderName("SunJCE");
+        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
+        config.setIvGeneratorClassName("org.jasypt.iv.NoIvGenerator");
+        config.setStringOutputType("base64");
+        encryptor.setConfig(config);
+        return encryptor;
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
 }

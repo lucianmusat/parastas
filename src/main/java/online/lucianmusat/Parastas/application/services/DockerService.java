@@ -54,7 +54,7 @@ public class DockerService {
         try {
            return dockerClient.inspectContainerCmd(containerId).exec().getState().getRunning();
         } catch (Exception e) {
-            logger.error("Error while checking if container " + containerId + " is running: " + e.getMessage());
+            logger.error("Error while checking if container {} is running: {}", containerId, e.getMessage());
             return false;
         }
     }
@@ -109,7 +109,7 @@ public List<String> getContainerLogs(@Nonnull String containerId, int numberOfLi
         try {
             TimeUnit.MILLISECONDS.sleep(100);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("Error while waiting for logs to be retrieved: {}", e.getMessage());
         }
 
         return logs;

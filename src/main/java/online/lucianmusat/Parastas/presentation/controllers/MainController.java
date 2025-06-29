@@ -66,7 +66,7 @@ public class MainController {
         this.stateSettingsRepository = stateSettingsRepository;
         // There is a thing called @Scheduled method in Spring, but I need an easy way to update the refresh period on the fly
         executor = Executors.newScheduledThreadPool(nrThreads);
-        stateSettings = stateSettingsRepository.findById(1L).orElse(new StateSettings());
+        stateSettings = stateSettingsRepository.findTopByOrderByIdAsc().orElse(new StateSettings());
         refreshPeriodSeconds.set(stateSettings.getRefreshPeriodSeconds());
         executor.scheduleAtFixedRate(watchContainers, 0, refreshPeriodSeconds.get(), TimeUnit.SECONDS);
     }
@@ -121,7 +121,7 @@ public class MainController {
     }
 
     private void updateExecutorSettings() {
-        int newRefreshPeriodSeconds = stateSettingsRepository.findById(1L).orElse(stateSettings).getRefreshPeriodSeconds();
+        int newRefreshPeriodSeconds = stateSettingsRepository.findTopByOrderByIdAsc().orElse(stateSettings).getRefreshPeriodSeconds();
         if (newRefreshPeriodSeconds != refreshPeriodSeconds.get()) {
             logger.info("Updating refresh period to {} seconds", newRefreshPeriodSeconds);
             stopWatching();
@@ -199,7 +199,7 @@ public class MainController {
     };
 
     public void sendNotification(final String containerName, final String containerId, boolean isDown) {
-        SmtpSettings smtpSettings = smtpSettingsRepository.findById(1L).orElse(new SmtpSettings());
+        SmtpSettings smtpSettings = smtpSettingsRepository.findTopByOrderByIdAsc().orElse(new SmtpSettings());
         if (Strings.isNullOrEmpty(smtpSettings.getRecipients())) {
             logger.error("No recipient email set!");
             return;

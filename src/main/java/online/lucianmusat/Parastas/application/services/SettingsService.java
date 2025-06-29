@@ -20,14 +20,24 @@ import java.util.Objects;
 public class SettingsService {
     private static final Logger logger = LogManager.getLogger(SettingsService.class);
 
+    private final SmtpSettingsRepository smtpSettingsRepository;
+    private final StateSettingsRepository stateSettingsRepository;
+    private final CredentialsRepository credentialsRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EncryptionService encryptionService;
+
     @Autowired
-    private SmtpSettingsRepository smtpSettingsRepository;
-    @Autowired
-    private StateSettingsRepository stateSettingsRepository;
-    @Autowired
-    private CredentialsRepository credentialsRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public SettingsService(SmtpSettingsRepository smtpSettingsRepository,
+                           StateSettingsRepository stateSettingsRepository,
+                           CredentialsRepository credentialsRepository,
+                           PasswordEncoder passwordEncoder,
+                           EncryptionService encryptionService) {
+        this.smtpSettingsRepository = smtpSettingsRepository;
+        this.stateSettingsRepository = stateSettingsRepository;
+        this.credentialsRepository = credentialsRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.encryptionService = encryptionService;
+    }
 
     public void initModels(Model model) {
         SmtpSettings smtpSettings = smtpSettingsRepository.findTopByOrderByIdAsc().orElse(new SmtpSettings());
@@ -60,7 +70,7 @@ public class SettingsService {
 
         if (!settingsFormDTO.getSmtpPassword().isEmpty()) {
             logger.info("Saving SMTP Password");
-            smtpSettings.setSmtpPassword(settingsFormDTO.getSmtpPassword().trim());
+            smtpSettings.setSmtpPassword(encryptionService.encrypt(settingsFormDTO.getSmtpPassword().trim()));
         }
 
         if (!settingsFormDTO.getRecipientEmailList().isEmpty()) {

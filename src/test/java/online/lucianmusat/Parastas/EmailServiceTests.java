@@ -1,5 +1,6 @@
 package online.lucianmusat.Parastas;
 
+import org.mockito.MockitoAnnotations;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,7 +31,9 @@ public class EmailServiceTests {
 
     @BeforeEach
     public void setUp() {
+        MockitoAnnotations.openMocks(this);
         doNothing().when(mailSender).send(any(SimpleMailMessage.class));
+        emailService.setMailSender(mailSender);
     }
 
     @Test
