@@ -10,14 +10,13 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.context.ApplicationContext;
 
-import online.lucianmusat.Parastas.presentation.controllers.MainController;
 
 @Service
 public class EmailService {
 
     private static final String FROM_EMAIL = "noreply@lucianmusat.nl";
 
-    private static final Logger logger = LogManager.getLogger(MainController.class);
+    private static final Logger logger = LogManager.getLogger(EmailService.class);
 
     @Autowired
     private ApplicationContext applicationContext;

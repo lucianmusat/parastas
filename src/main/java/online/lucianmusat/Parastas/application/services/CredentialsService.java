@@ -16,7 +16,7 @@ public class CredentialsService {
 
     private static final Logger logger = LogManager.getLogger(CredentialsService.class);
 
-    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
     private CredentialsRepository credentialsRepository;

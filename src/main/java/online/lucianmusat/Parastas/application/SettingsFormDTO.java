@@ -18,6 +18,7 @@ public class SettingsFormDTO {
     private String refreshPeriod;
     @NotBlank(message = "Username cannot be empty")
     private String username;
+
     private String oldPassword;
     private String newPassword;
 
