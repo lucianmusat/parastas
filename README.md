@@ -6,11 +6,14 @@ A simple docker container watcher to keep an eye out for running containers and 
 
 ### Why?
 
-Like everyone else, I have some applications running in docker containers on my raspberry pi. Sometimes these apps crash and I don't know about it unless I go and check their status. I could of course install a fully fledged monitoring tool like Prometheus, or maybe make a small script and put it in a cronjob, but I thought this could be a good opportunity to learn Spring framework.
+Like a lot of people, I have some applications running in docker containers on my raspberry pi. Sometimes these apps crash 
+and I don't know about it unless I go and check their status. I could of course install a fully fledged monitoring tool
+like Prometheus, or maybe make a small script and put it in a cronjob, but I thought this would be a nice opportunity for
+a small Spring project.
 
 ### How to use
 
-- Make sure you have you have docker expose daemon on localhost:2375
+- Make sure you have docker expose daemon on localhost:2375
 - Clone the project
 - run ./build_docker.sh
 - docker compose up -d

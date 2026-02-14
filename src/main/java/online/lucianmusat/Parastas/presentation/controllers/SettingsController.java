@@ -24,20 +24,27 @@ public class SettingsController {
     @RequestMapping("/settings")
     public String settingsPage(Model model) {
         settingsService.initModels(model);
+        model.addAttribute("activeTab", "user");
         return "settings";
     }
 
-    @PostMapping("/save-settings")
-    public String saveSettings(@Valid SettingsFormDTO settingsFormDTO, BindingResult bindingResult, Model model) {
-        if (bindingResult.hasErrors()) {
-            logger.error("Could not save settings: {}", bindingResult.toString());
-            return "redirect:/settings";
-        }
+    @PostMapping("/save-user-settings")
+    public String saveUserSettings(SettingsFormDTO settingsFormDTO, Model model) {
+        boolean passwordMatch = settingsService.updateCredentials(settingsFormDTO);
+        settingsService.initModels(model);
+        model.addAttribute("passwordMatch", passwordMatch);
+        model.addAttribute("saveSuccess", passwordMatch);
+        model.addAttribute("activeTab", "user");
+        return "settings";
+    }
+
+    @PostMapping("/save-notification-settings")
+    public String saveNotificationSettings(SettingsFormDTO settingsFormDTO, Model model) {
         settingsService.updateSMTPSettings(settingsFormDTO);
         settingsService.updateStateSettings(settingsFormDTO);
         settingsService.initModels(model);
-        model.addAttribute("passwordMatch", settingsService.updateCredentials(settingsFormDTO));
         model.addAttribute("saveSuccess", true);
+        model.addAttribute("activeTab", "notifications");
         return "settings";
     }
 
