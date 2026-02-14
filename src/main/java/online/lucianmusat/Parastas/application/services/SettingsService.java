@@ -25,18 +25,21 @@ public class SettingsService {
     private final CredentialsRepository credentialsRepository;
     private final PasswordEncoder passwordEncoder;
     private final EncryptionService encryptionService;
+    private final DockerService dockerService;
 
     @Autowired
     public SettingsService(SmtpSettingsRepository smtpSettingsRepository,
                            StateSettingsRepository stateSettingsRepository,
                            CredentialsRepository credentialsRepository,
                            PasswordEncoder passwordEncoder,
-                           EncryptionService encryptionService) {
+                           EncryptionService encryptionService,
+                           DockerService dockerService) {
         this.smtpSettingsRepository = smtpSettingsRepository;
         this.stateSettingsRepository = stateSettingsRepository;
         this.credentialsRepository = credentialsRepository;
         this.passwordEncoder = passwordEncoder;
         this.encryptionService = encryptionService;
+        this.dockerService = dockerService;
     }
 
     public void initModels(Model model) {
@@ -117,6 +120,7 @@ public class SettingsService {
         }
 
         stateSettingsRepository.save(stateSettings);
+        dockerService.updateExecutorSettings();
     }
 
 }

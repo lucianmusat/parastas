@@ -62,33 +62,45 @@ public class MainControllerTests {
     @Test
     public void testIndexModel() throws Exception {
         Map<DockerContainer, Boolean> mockContainers = new HashMap<>();
-        mockContainers.put(new DockerContainer("container1", "image1"), true);
-        mockContainers.put(new DockerContainer("container2", "image2"), false);
+        DockerContainer c1 = new DockerContainer("container1", "image1");
+        DockerContainer c2 = new DockerContainer("container2", "image2");
+        mockContainers.put(c1, true);
+        mockContainers.put(c2, false);
         when(dockerService.listAllDockerContainers()).thenReturn(mockContainers);
+        
+        Map<String, Boolean> mockWatched = new HashMap<>();
+        mockWatched.put("container1", true);
+        mockWatched.put("container2", false);
+        when(dockerService.getWatchedContainers()).thenReturn(mockWatched);
 
         Model model = new ConcurrentModel();
         DeferredResult<String> viewName = mainController.index(model);
 
         viewName.setResultHandler(result -> {
             assertEquals("index", result);
-            assertEquals(2, model.getAttribute("containers"));
-            assertEquals(1, model.getAttribute("selectedContainers"));
+            Map<DockerContainer, Boolean> modelContainers = (Map<DockerContainer, Boolean>) model.getAttribute("containers");
+            assertEquals(2, modelContainers.size());
+            Map<String, Boolean> modelSelected = (Map<String, Boolean>) model.getAttribute("selectedContainers");
+            assertEquals(2, modelSelected.size());
             assertEquals(false, model.getAttribute("allWatched"));
         });
     }
 
     @Test
     public void testToggleContainer() throws Exception {
-        // Call index to populate the model
         Map<DockerContainer, Boolean> mockContainers = new HashMap<>();
         mockContainers.put(new DockerContainer("containerId1", "image1"), false);
-        mockContainers.put(new DockerContainer("containerId2", "image2"), false);
         when(dockerService.listAllDockerContainers()).thenReturn(mockContainers);
-        mainController.index(new ConcurrentModel());
+
+        Map<String, Boolean> mockWatched = new HashMap<>();
+        mockWatched.put("containerId1", true);
+        when(dockerService.getWatchedContainers()).thenReturn(mockWatched);
 
         mockMvc.perform(get("/container/containerId1/toggleSelect"))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/"));
+
+        verify(dockerService).toggleWatchedContainer("containerId1");
 
         mockMvc.perform(get("/containers"))
             .andExpect(status().isOk())

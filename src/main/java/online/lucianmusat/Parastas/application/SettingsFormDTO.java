@@ -19,6 +19,7 @@ public class SettingsFormDTO {
     @NotBlank(message = "Username cannot be empty")
     private String username;
 
+    // TODO: Validate password, allow for null?
     private String oldPassword;
     private String newPassword;
 

@@ -12,7 +12,7 @@ import jakarta.servlet.RequestDispatcher;
 @Controller
 public class ErrController  implements ErrorController {
 
-    private static final Logger logger = LogManager.getLogger(MainController.class);
+    private static final Logger logger = LogManager.getLogger(ErrController.class);
 
     @RequestMapping("/error")
     public String handleError(HttpServletRequest request) {

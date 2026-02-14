@@ -16,6 +16,10 @@ import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.command.InspectContainerResponse.ContainerState;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import online.lucianmusat.Parastas.application.services.DockerService;
+import online.lucianmusat.Parastas.application.services.DockerServiceImpl;
+import online.lucianmusat.Parastas.application.services.EmailService;
+import online.lucianmusat.Parastas.domain.repositories.SmtpSettingsRepository;
+import online.lucianmusat.Parastas.domain.repositories.StateSettingsRepository;
 import online.lucianmusat.Parastas.infrastructure.DockerContainer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -48,6 +52,15 @@ class DockerServiceTests {
         when(container2.getState()).thenReturn("running");
     }
 
+    @Mock
+    private EmailService emailService;
+
+    @Mock
+    private StateSettingsRepository stateSettingsRepository;
+
+    @Mock
+    private SmtpSettingsRepository smtpSettingsRepository;
+
     @Test
     public void testListAllDockerContainers() {
 
@@ -56,7 +69,7 @@ class DockerServiceTests {
         when(listContainersCmdMock.exec()).thenReturn(Arrays.asList(container1, container2));
         when(dockerClient.listContainersCmd()).thenReturn(listContainersCmdMock);
 
-        DockerService dockerService = new DockerService(dockerClient);
+        DockerService dockerService = new DockerServiceImpl(dockerClient, emailService, stateSettingsRepository, smtpSettingsRepository);
         Map<DockerContainer, Boolean> containers = dockerService.listAllDockerContainers();
 
         assertEquals(2, containers.size());
@@ -83,7 +96,7 @@ class DockerServiceTests {
         when(listContainersCmdMock.exec()).thenReturn(Arrays.asList());
         when(dockerClient.listContainersCmd()).thenReturn(listContainersCmdMock);
 
-        DockerService dockerService = new DockerService(dockerClient);
+        DockerService dockerService = new DockerServiceImpl(dockerClient, emailService, stateSettingsRepository, smtpSettingsRepository);
         Map<DockerContainer, Boolean> containers = dockerService.listAllDockerContainers();
 
         assertEquals(0, containers.size());
@@ -99,7 +112,7 @@ class DockerServiceTests {
         when(listContainersCmdMock.exec()).thenReturn(Arrays.asList(container1, container2));
         when(dockerClient.listContainersCmd()).thenReturn(listContainersCmdMock);
 
-        DockerService dockerService = new DockerService(dockerClient);
+        DockerService dockerService = new DockerServiceImpl(dockerClient, emailService, stateSettingsRepository, smtpSettingsRepository);
         Map<DockerContainer, Boolean> containers = dockerService.listAllDockerContainers();
 
         assertEquals(2, containers.size());
@@ -122,7 +135,7 @@ class DockerServiceTests {
 
     @Test
     public void testIsNotRunning() {
-        DockerService dockerService = new DockerService(dockerClient);
+        DockerService dockerService = new DockerServiceImpl(dockerClient, emailService, stateSettingsRepository, smtpSettingsRepository);
         InspectContainerCmd inspectContainerCmdMock = mock(InspectContainerCmd.class);
         when(dockerClient.inspectContainerCmd("container1")).thenReturn(inspectContainerCmdMock);
         when(inspectContainerCmdMock.exec()).thenReturn(null);
@@ -132,7 +145,7 @@ class DockerServiceTests {
 
     @Test
     public void testIsRunning() {
-        DockerService dockerService = new DockerService(dockerClient);
+        DockerService dockerService = new DockerServiceImpl(dockerClient, emailService, stateSettingsRepository, smtpSettingsRepository);
         InspectContainerCmd inspectContainerCmdMock = mock(InspectContainerCmd.class);
         ContainerState containerStateMock = mock(ContainerState.class);
         when(containerStateMock.getRunning()).thenReturn(true);
@@ -146,7 +159,7 @@ class DockerServiceTests {
 
     @Test
     public void testGetContainerName() {
-        DockerService dockerService = new DockerService(dockerClient);
+        DockerService dockerService = new DockerServiceImpl(dockerClient, emailService, stateSettingsRepository, smtpSettingsRepository);
         InspectContainerCmd inspectContainerCmdMock = mock(InspectContainerCmd.class);
         when(dockerClient.inspectContainerCmd("container1")).thenReturn(inspectContainerCmdMock);
         InspectContainerResponse inspectContainerResponseMock = mock(InspectContainerResponse.class);
@@ -159,7 +172,7 @@ class DockerServiceTests {
 
     @Test
     public void testToggleOn() {
-        DockerService dockerService = new DockerService(dockerClient);
+        DockerService dockerService = new DockerServiceImpl(dockerClient, emailService, stateSettingsRepository, smtpSettingsRepository);
         InspectContainerCmd inspectContainerCmdMock = mock(InspectContainerCmd.class);
         when(dockerClient.inspectContainerCmd("container1")).thenReturn(inspectContainerCmdMock);
         when(inspectContainerCmdMock.exec()).thenReturn(null);
@@ -170,7 +183,7 @@ class DockerServiceTests {
 
     @Test
     public void testToggleOff() {
-        DockerService dockerService = new DockerService(dockerClient);
+        DockerService dockerService = new DockerServiceImpl(dockerClient, emailService, stateSettingsRepository, smtpSettingsRepository);
         InspectContainerCmd inspectContainerCmdMock = mock(InspectContainerCmd.class);
         ContainerState containerStateMock = mock(ContainerState.class);
         when(containerStateMock.getRunning()).thenReturn(true);
