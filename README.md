@@ -24,7 +24,3 @@ If everything is ok you should see the list of running docker containers. Check 
 
 ### NOTE
 ** If you are using Gmail SMTP server don't forget to "allow less secure apps" in you Gmail settings or create an "app password" if you have 2FA enabled.**
-
-### TODO:
-
- - [ ] Add tests (in progress)

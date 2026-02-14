@@ -17,8 +17,6 @@ import org.junit.jupiter.api.Test;
 import online.lucianmusat.Parastas.presentation.controllers.MainController;
 
 import online.lucianmusat.Parastas.application.services.DockerService;
-import online.lucianmusat.Parastas.application.services.EmailService;
-import online.lucianmusat.Parastas.domain.repositories.StateSettingsRepository;
 import online.lucianmusat.Parastas.infrastructure.DockerContainer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,12 +29,6 @@ public class MainControllerTests {
 
     @Mock
     private DockerService dockerService;
-
-    @Mock
-    private EmailService emailService;
-
-    @Mock
-    private StateSettingsRepository stateSettingsRepository;
 
     @InjectMocks
     private MainController mainController;

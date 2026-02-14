@@ -31,7 +31,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 @Configuration
-@EnableAsync // for @Async annotation
+@EnableAsync
 public class ParastasConfiguration {
 
     private static final Logger logger = LogManager.getLogger(ParastasConfiguration.class);
