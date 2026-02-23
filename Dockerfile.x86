@@ -1,12 +1,11 @@
 # Stage 1: Build the Maven project
-FROM eclipse-temurin:17-jdk AS build
-RUN apt update && apt install -y maven
+FROM maven:3.8.4-openjdk-17-slim AS build
 WORKDIR /app
 COPY . .
 RUN mvn install -DskipTests
 
-# Stage 2: Create the final Docker image for ARM32v7 (older Raspberry Pi)
-FROM arm32v7/debian:bullseye-slim
+# Stage 2: Create the final Docker image for x86_64/AMD64
+FROM debian:bullseye-slim
 
 ARG DEBIAN_CODENAME=bullseye
 
@@ -17,8 +16,8 @@ RUN apt-get update && \
     curl \
     gnupg \
     openjdk-17-jre && \
-    curl -fsSL https://download.docker.com/linux/raspbian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
-    echo "deb [arch=armhf signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/raspbian ${DEBIAN_CODENAME} stable" > /etc/apt/sources.list.d/docker.list && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian ${DEBIAN_CODENAME} stable" > /etc/apt/sources.list.d/docker.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends docker-ce-cli && \
     apt-get clean && \
